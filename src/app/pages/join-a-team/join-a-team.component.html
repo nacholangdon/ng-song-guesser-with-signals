@@ -1,28 +1,20 @@
-<!-- join-a-team.component.html -->
 <div class="min-h-screen bg-gray-100 flex items-center justify-center">
   <div class="w-full max-w-md mx-auto">
     <form [formGroup]="joinTeamForm" (ngSubmit)="onSubmit()" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
       <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
-          Username
-        </label>
-        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text" placeholder="Username" formControlName="username">
+        <app-label [htmlFor]="'username'" [value]="'Username'"></app-label>
+        <input id="username" type="text" placeholder="Username" formControlName="username">
       </div>
       <div class="mb-6">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="teamCode">
-          Team Code
-        </label>
-        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="teamCode" type="text" placeholder="Team Code" formControlName="teamCode">
+        <app-label [htmlFor]="'teamCode'" [value]="'Team Code'"></app-label>
+        <input id="teamCode" type="text" placeholder="Team Code" formControlName="teamCode">
       </div>
       <div class="flex items-center justify-between">
-        <button
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" 
-          type="submit" 
-          [ngClass]="{'cursor-not-allowed bg-blue-300 opacity-50': joinTeamForm.invalid}"
-          [disabled]="joinTeamForm.invalid"
-        >
-          Join Team
-        </button>
+        <app-button
+          [isDisabled]="joinTeamForm.invalid"
+          [inputType]="'submit'"
+          [value]="'Join Team'"
+        ></app-button>
       </div>
     </form>
   </div>
