@@ -1,1 +1,22 @@
-<p>join-a-team works!</p>
+<div class="min-h-screen bg-gray-100 flex items-center justify-center">
+  <div class="w-full max-w-md mx-auto">
+    <form [formGroup]="joinTeamForm" (ngSubmit)="onSubmit()" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+      <div class="mb-4">
+        <app-label [htmlFor]="'username'" [value]="'Username'"></app-label>
+        <input id="username" type="text" placeholder="Username" formControlName="username">
+      </div>
+      <div class="mb-6">
+        <app-label [htmlFor]="'teamCode'" [value]="'Team Code'"></app-label>
+        <input id="teamCode" type="text" placeholder="Team Code" formControlName="teamCode">
+      </div>
+      <div class="flex items-center justify-between">
+        <app-button
+          [isDisabled]="joinTeamForm.invalid"
+          [inputType]="'submit'"
+          [value]="'Join Team'"
+        ></app-button>
+      </div>
+    </form>
+  </div>
+</div>
+
