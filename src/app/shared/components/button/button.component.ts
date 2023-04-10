@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -9,7 +9,14 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./button.component.scss']
 })
 export class ButtonComponent {
-  @Input() inputType: 'button' | 'submit' = 'button';
   @Input() value = '';
   @Input() isDisabled = false;
+  @Input() inputType: 'button' | 'submit' = 'button';
+  @Output() onClick: EventEmitter<boolean> = new EventEmitter();
+
+  onButtonClick(): void {
+    if (this.inputType === 'button') {
+      this.onClick.emit(true);
+    }
+  }
 }

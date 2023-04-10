@@ -1,9 +1,10 @@
 
 <button
   class="btn-primary"
-  type="{{ inputType }}" 
+  type="{{ inputType }}"
   [ngClass]="{'btn-primary-disabled': isDisabled}"
   [disabled]="isDisabled"
+  (click)="onButtonClick()"
 >
   {{ value }}
 </button>
