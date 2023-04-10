@@ -23,7 +23,6 @@ export class JoinATeamComponent {
 
   onSubmit(): void {
     if (this.joinTeamForm.valid) {
-      console.log(this.joinTeamForm.value);
       this._router.navigate(['/ranking'], { queryParams: { teamCode: this.joinTeamForm.get('teamCode')?.value } });
     }
   }
