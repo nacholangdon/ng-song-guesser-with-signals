@@ -1,1 +1,4 @@
 <p>guess-the-song works!</p>
+<ul>
+  <li *ngFor="let word of lyrics$ | async">{{ word }}</li>
+</ul>
