@@ -1,7 +1,10 @@
-import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SongsService } from '../../core/services/songs.service';
+import { Component, inject } from '@angular/core';
+
 import { map, Observable } from 'rxjs';
+
+import { SongsService } from '../../core/services/songs.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-guess-the-song',
@@ -11,13 +14,13 @@ import { map, Observable } from 'rxjs';
   styleUrls: ['./guess-the-song.component.scss']
 })
 export class GuessTheSongComponent {
+
+  private readonly _route = inject(ActivatedRoute);
   private readonly _songsService = inject(SongsService);
-  
-  public lyrics$: Observable<string[]> = this.getLyrics(Math.floor(Math.random() * 3) + 1); // TODO: get lyric from real songId
 
+  public lyrics$: Observable<string[]> = this._getLyrics(this._route.snapshot.queryParams['songId']);
 
-  getLyrics(songId: number): Observable<string[]> {
-    console.log(songId)
+  private _getLyrics(songId: number): Observable<string[]> {
     return this._songsService.getLyrics(songId).pipe(
       map((lyrics: string[]) => this._shuffleArray(lyrics))
     );
