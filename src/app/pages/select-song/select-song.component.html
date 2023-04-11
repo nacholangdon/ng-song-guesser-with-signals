@@ -20,7 +20,7 @@
 
       <div class="absolute mt-4 overflow-hidden rounded-md bg-white py-1 shadow-xl shadow-black/5 ring-1 ring-slate-700/10 w-full"
         *ngIf="songs$ | async as songs">
-        <div class="px-3 py-2 hover:bg-indigo-600 hover:text-white" *ngFor="let song of songs">{{ song.title }}</div>
+        <div class="px-3 py-2 hover:bg-indigo-600 hover:text-white" *ngFor="let song of songs" (click)="selectSong(song.songId)">{{ song.title }}</div>
       </div>
 
     </div>
