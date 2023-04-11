@@ -18,7 +18,7 @@ export class GuessTheSongComponent {
   private readonly _route = inject(ActivatedRoute);
   private readonly _songsService = inject(SongsService);
 
-  public lyrics$: Observable<string[]> = this._getLyrics(this._route.snapshot.queryParams['songId']);
+  public lyrics$: Observable<string[]> = this._getLyrics(+this._route.snapshot.queryParams['songId']);
 
   private _getLyrics(songId: number): Observable<string[]> {
     return this._songsService.getLyrics(songId).pipe(
