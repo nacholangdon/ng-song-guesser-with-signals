@@ -15,6 +15,32 @@
           [inputType]="'submit'"
           [value]="'Join Team'"
         ></app-button>
+        <div
+          id="g_id_onload"
+          data-client_id="951096299812-65ccdd0dlpmce515n5n9i6pemoarerd3.apps.googleusercontent.com"
+          data-context="signin"
+          data-ux_mode="popup"
+          data-login_uri="http://localhost:4200"
+          data-auto_prompt="false">
+        </div>
+
+        <div
+          class="g_id_signin"
+          data-type="standard"
+          data-shape="pill"
+          data-theme="outline"
+          data-text="continue_with"
+          data-size="large"
+          data-logo_alignment="left">
+        </div>
+      </div>
+
+      <div *ngIf="authState$ | async as socialUser">
+        <img src="{{ socialUser?.photoUrl }}" referrerpolicy="no-referrer">
+        <div>
+          <h4>{{ socialUser?.name }}</h4>
+          <p>{{ socialUser?.email }}</p>
+        </div>
       </div>
     </form>
   </div>
