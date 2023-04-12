@@ -21,7 +21,7 @@ jobs:
         run: npm ci
 
       - name: Build Angular app
-        run: npm run build -- --base-href="https://${{ github.actor }}.github.io/${{ github.repository }}/ng-song-guesser/"
+        run: npm run build -- --base-href="https://bradelev.github.io/ng-song-guesser/"
 
       - name: Create .nojekyll file
         run: touch dist/ng-song-guesser/.nojekyll
