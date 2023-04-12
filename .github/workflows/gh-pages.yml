@@ -23,14 +23,8 @@ jobs:
       - name: Build Angular app
         run: npm run build -- --base-href=/ng-song-guesser/
 
-      - name: Configure git
-        run: |
-          git config --global user.name "Braulio De Leon"
-          git config --global user.email "hi@brauliodeleon.com"
-
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@4.1.5
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          token: ${{ secrets.GH_PAGES_DEPLOY_TOKEN }}
-          branch: gh-pages
-          folder: dist/ng-song-guesser
+          github_token: ${{ secrets.GH_PAGES_DEPLOY_TOKEN }}
+          publish_dir: ./dist/ng-song-guesser
