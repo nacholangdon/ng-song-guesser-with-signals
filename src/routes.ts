@@ -14,17 +14,17 @@ export const routes: Routes = [
   {
     path: 'join-a-team',
     loadComponent: () => import('./app/pages/join-a-team/join-a-team.component').then(c => c.JoinATeamComponent),
-    canLoad: [AuthenticationGuard]
+    canActivate: [AuthenticationGuard]
   },
   {
     path: 'guess-the-song',
     loadComponent: () => import('./app/pages/guess-the-song/guess-the-song.component').then(c => c.GuessTheSongComponent),
-    canLoad: [AuthenticationGuard]
+    canActivate: [AuthenticationGuard]
   },
   {
     path: 'ranking',
     loadComponent: () => import('./app/pages/ranking/ranking.component').then(c => c.RankingComponent),
-    canLoad: [AuthenticationGuard]
+    canActivate: [AuthenticationGuard]
   },
   { path: '**', redirectTo: 'login' }
 ];
