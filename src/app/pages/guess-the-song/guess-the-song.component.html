@@ -1,12 +1,12 @@
 
-<div class="flex flex-col items-center justify-center" *ngIf="vm$ | async as vm">
+<div class="flex flex-col items-center justify-center mb-6" *ngIf="vm$ | async as vm">
   <div class="w-full max-w-md mx-auto">
 
     <p *ngIf="vm.selectedTeam as team" class="my-5 text-center">
       Your team is <strong>{{ team.name }}</strong>
     </p>
 
-    <form [formGroup]="songsForm" (ngSubmit)="onSubmit()" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-6 text-black">
+    <form [formGroup]="songsForm" (ngSubmit)="onSubmit()" class="bg-white shadow-md rounded px-8 pt-6 pb-8 text-black">
       <div class="mb-6">
         <div *ngIf="(currentPhrase$ | async) as currentPhrase; else loading">
           <span class="font-bold">{{ currentPhrase }}</span>

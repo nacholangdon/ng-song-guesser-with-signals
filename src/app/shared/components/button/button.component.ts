@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 export class ButtonComponent {
   @Input() value = '';
   @Input() isDisabled = false;
+  @Input() style: 'none' | 'full' = 'none';
   @Input() inputType: 'button' | 'submit' = 'button';
   @Output() onClick: EventEmitter<boolean> = new EventEmitter();
 

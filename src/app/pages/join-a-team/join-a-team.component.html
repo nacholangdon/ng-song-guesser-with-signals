@@ -1,15 +1,14 @@
-<div class="flex items-center justify-center" *ngIf="isLoggedIn$ | async">
-  <div class="w-full max-w-md mx-auto">
+<ng-container *ngIf="isLoggedIn$ | async">
+  <div class="w-full max-w-md mx-auto mb-6">
     <h1 class="text-3xl font-bold text-white md:text-4xl text-center mb-5">Join a team</h1>
 
     <div class="flex items-center justify-center">
-
-      <div class="relative">
+      <div class="relative w-full">
         <input
           type="text"
           autocomplete="off"
           placeholder="Join a team"
-          class="border-none mr-3 leading-tight focus:outline-none w-1/2"
+          class="border-none mr-3 leading-tight focus:outline-none"
           [formControl]="searchTeam"
         >
         <button type="submit" class="absolute right-0 bottom-0 mb-3 mr-4 w-fit text-black">
@@ -18,13 +17,12 @@
           </svg>
         </button>
 
-        <div class="absolute mt-4 overflow-hidden rounded-md bg-white py-1 shadow-xl shadow-black/5 ring-1 ring-slate-700/10 w-full"
+        <div class="absolute mt-0 overflow-hidden rounded-md bg-white py-1 shadow-xl shadow-black/5 ring-1 ring-slate-700/10 w-full"
           *ngIf="teams$ | async as teams">
           <div class="px-3 py-2 hover:bg-indigo-600 text-black" *ngFor="let team of teams" (click)="selectTeam(team)">{{ team.name }}</div>
         </div>
-
       </div>
 
     </div>
   </div>
-</div>
+</ng-container>

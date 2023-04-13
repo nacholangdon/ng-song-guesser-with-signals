@@ -1,8 +1,8 @@
 
 <button
   class="btn-primary"
-  type="{{ inputType }}"
-  [ngClass]="{'btn-primary-disabled': isDisabled}"
+  [type]="inputType"
+  [ngClass]="{'btn-primary-disabled': isDisabled, 'rounded-none': style === 'none', 'rounded-full': style === 'full' }"
   [disabled]="isDisabled"
   (click)="onButtonClick()"
 >
