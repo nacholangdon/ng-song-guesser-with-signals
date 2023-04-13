@@ -1,29 +1,30 @@
 import { Routes } from '@angular/router';
+import { AuthenticationGuard } from './app/shared/guards/authentication.guard';
 
 export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'join-a-team'
+    redirectTo: 'login'
+  },
+  {
+    path: 'login',
+    loadComponent: () => import('./app/pages/login/login.component').then(c => c.LoginComponent),
   },
   {
     path: 'join-a-team',
     loadComponent: () => import('./app/pages/join-a-team/join-a-team.component').then(c => c.JoinATeamComponent),
-  },
-  {
-    path: 'ranking',
-    loadComponent: () => import('./app/pages/ranking/ranking.component').then(c => c.RankingComponent),
-  },
-  {
-    path: 'select-song',
-    loadComponent: () => import('./app/pages/select-song/select-song.component').then(c => c.SelectSongComponent),
+    canLoad: [AuthenticationGuard]
   },
   {
     path: 'guess-the-song',
     loadComponent: () => import('./app/pages/guess-the-song/guess-the-song.component').then(c => c.GuessTheSongComponent),
+    canLoad: [AuthenticationGuard]
   },
   {
-    path: 'guess-last-chance',
-    loadComponent: () => import('./app/pages/guess-last-chance/guess-last-chance.component').then(c => c.GuessLastChanceComponent),
-  }
+    path: 'ranking',
+    loadComponent: () => import('./app/pages/ranking/ranking.component').then(c => c.RankingComponent),
+    canLoad: [AuthenticationGuard]
+  },
+  { path: '**', redirectTo: 'login' }
 ];

@@ -1,48 +1,24 @@
-<div class="min-h-screen bg-gray-100 flex items-center justify-center">
+<div class="min-h-screen bg-gray-100 flex items-center justify-center" *ngIf="isLoggedIn$ | async">
   <div class="w-full max-w-md mx-auto">
-    <form [formGroup]="joinTeamForm" (ngSubmit)="onSubmit()" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-      <div class="mb-4">
-        <app-label [htmlFor]="'username'" [value]="'Username'"></app-label>
-        <input id="username" type="text" placeholder="Username" formControlName="username">
-      </div>
-      <div class="mb-6">
-        <app-label [htmlFor]="'teamCode'" [value]="'Team Code'"></app-label>
-        <input id="teamCode" type="text" placeholder="Team Code" formControlName="teamCode">
-      </div>
-      <div class="flex items-center justify-between">
-        <app-button
-          [isDisabled]="joinTeamForm.invalid"
-          [inputType]="'submit'"
-          [value]="'Join Team'"
-        ></app-button>
-        <div
-          id="g_id_onload"
-          data-client_id="951096299812-65ccdd0dlpmce515n5n9i6pemoarerd3.apps.googleusercontent.com"
-          data-context="signin"
-          data-ux_mode="popup"
-          data-login_uri="http://localhost:4200"
-          data-auto_prompt="false">
-        </div>
+    <h1 class="text-3xl font-bold text-gray-800 dark:text-white md:text-4xl text-center mb-5">Join a team</h1>
 
-        <div
-          class="g_id_signin"
-          data-type="standard"
-          data-shape="pill"
-          data-theme="outline"
-          data-text="continue_with"
-          data-size="large"
-          data-logo_alignment="left">
-        </div>
+    <div *ngIf="authState$ | async as socialUser" class="bg-white rounded-lg overflow-hidden ring-1 ring-slate-900/5 dark:bg-slate-800 dark:highlight-white/5 dark:ring-0 p-8 text-center mb-4">
+      <img src="{{ socialUser?.photoUrl }}" referrerpolicy="no-referrer">
+      <div>
+        <h4>Welcome {{ socialUser?.name }}</h4>
+        <p>{{ socialUser?.email }}</p>
       </div>
+      <div class="card-block">
+        <app-button [value]="'Sign out'" (onClick)="signOut()"></app-button>
+      </div>
+    </div>
 
-      <div *ngIf="authState$ | async as socialUser">
-        <img src="{{ socialUser?.photoUrl }}" referrerpolicy="no-referrer">
-        <div>
-          <h4>{{ socialUser?.name }}</h4>
-          <p>{{ socialUser?.email }}</p>
-        </div>
+    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+      <div class="flex items-center justify-center">
+
+
       </div>
-    </form>
+    </div>
   </div>
 </div>
 

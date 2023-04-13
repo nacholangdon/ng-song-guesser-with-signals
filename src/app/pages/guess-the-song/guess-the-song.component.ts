@@ -1,12 +1,14 @@
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
 
 import { BehaviorSubject, interval, map, Observable, startWith, switchMap, take, takeWhile } from 'rxjs';
-import { Song } from '../../core/models/song';
-import { SongsService } from '../../core/services/songs.service';
-import { ButtonComponent } from '../../shared/components/button/button.component';
+
+import { Song } from 'src/app/core/models/song';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { SongsService } from 'src/app/core/services/songs.service';
+import { ButtonComponent } from 'src/app/shared/components/button/button.component';
 
 @Component({
   selector: 'app-guess-the-song',
@@ -17,18 +19,21 @@ import { ButtonComponent } from '../../shared/components/button/button.component
 })
 export class GuessTheSongComponent {
 
-  private readonly _route = inject(ActivatedRoute);
-  private readonly _songsService = inject(SongsService);
+  private readonly _router = inject(Router);
   private readonly _fb = inject(FormBuilder);
+  private readonly _songsService = inject(SongsService);
+  private readonly _authService = inject(AuthService);
 
   public randomSongId = Math.floor(Math.random() * 8) + 1;
   public lyrics$: Observable<string[]> = this._getLyrics(this.randomSongId);
   public stopCondition$: BehaviorSubject<boolean> = new BehaviorSubject(false);
-  
+  public authState$ = this._authService.authState$;
+  public isLoggedIn$ = this._authService.isLoggedIn$;
+
   public songsForm = this._fb.group({
     songChoice: [null],
   });
-  
+
   public songs$: Observable<Song[]> = this._songsService.getSongs().pipe(
     take(1),
     map(songs => this._getSongOptions(songs, this.randomSongId, 3))
@@ -47,7 +52,15 @@ export class GuessTheSongComponent {
     map((elapsedTime) => ((elapsedTime + 1) / 30) * 100)
   );
 
-  onSubmit() {
+  public ngOnInit(): void {
+    this.authState$.subscribe(res => {
+      if (!res) {
+        this._router.navigate(['/login']);
+      }
+    });
+  }
+
+  public onSubmit() {
     const selectedSongId = this.songsForm.get('songChoice')?.value;
     if (Number(selectedSongId) === this.randomSongId) {
       console.log('isCorrect -> ', this.randomSongId);
@@ -55,6 +68,10 @@ export class GuessTheSongComponent {
     } else {
       console.log('incorrect => ', Number(selectedSongId), this.randomSongId)
     }
+  }
+
+  public signOut(): void {
+    this._authService.signOut();
   }
 
   private _getLyrics(songId: number): Observable<string[]> {
@@ -86,4 +103,5 @@ export class GuessTheSongComponent {
     }
     return arr;
   };
+
 }

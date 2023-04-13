@@ -1,5 +1,19 @@
-<div class="min-h-screen bg-gray-100 flex items-center justify-center">
+
+<div class="min-h-screen bg-gray-100 flex flex-col items-center justify-center" *ngIf="isLoggedIn$ | async">
+
+  <div *ngIf="authState$ | async as socialUser" class="bg-white rounded-lg overflow-hidden ring-1 ring-slate-900/5 dark:bg-slate-800 dark:highlight-white/5 dark:ring-0 p-8 text-center mb-4">
+    <img src="{{ socialUser?.photoUrl }}" referrerpolicy="no-referrer">
+    <div>
+      <h4>Welcome {{ socialUser?.name }}</h4>
+      <p>{{ socialUser?.email }}</p>
+    </div>
+    <div class="card-block">
+      <app-button [value]="'Sign out'" (onClick)="signOut()"></app-button>
+    </div>
+  </div>
+
   <div class="w-full max-w-md mx-auto">
+
     <form [formGroup]="songsForm" (ngSubmit)="onSubmit()" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-6">
       <div class="mb-6">
         <div *ngIf="(currentPhrase$ | async) as currentPhrase; else loading">
@@ -37,4 +51,3 @@
     </form>
   </div>
 </div>
-
