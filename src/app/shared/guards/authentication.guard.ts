@@ -1,26 +1,30 @@
 import { Injectable, inject } from '@angular/core';
-import { CanLoad, Route } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
 
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, map, of, tap } from 'rxjs';
 
 import { AuthService } from 'src/app/core/services/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AuthenticationGuard implements CanLoad {
+export class AuthenticationGuard implements CanActivate {
 
+  private readonly _router = inject(Router);
   private readonly _authService = inject(AuthService);
 
-  canLoad(route: Route): Observable<boolean> {
-
+  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
     return this._authService.isLoggedIn$.pipe(
-        tap((isLoggedIn: boolean) => {
-          if (!isLoggedIn) {
-            return false;
-          }
+      map((response: boolean) => {
+        if (response) {
           return true;
-        }));
-  }
+        }
+        this._router.navigate(['/login']);
+        return false;
+    }), catchError((error) => {
+      this._router.navigate(['/login']);
+      return of(false);
+    }));
+}
 
 }
