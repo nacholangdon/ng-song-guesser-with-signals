@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
-import { GoogleLoginProvider, SocialAuthService, SocialAuthServiceConfig, SocialUser } from '@abacritt/angularx-social-login';
+import { SocialAuthService } from '@abacritt/angularx-social-login';
 
 import { LabelComponent } from '../../shared/components/label/label.component';
 import { ButtonComponent } from '../../shared/components/button/button.component';
@@ -22,19 +22,16 @@ export class JoinATeamComponent {
   private readonly _authService = inject(SocialAuthService);
 
   authState$ = this._authService.authState;
-  user!: SocialUser;
-  loggedIn!: boolean;
 
   joinTeamForm: FormGroup = this._formBuilder.group({
     username: ['', Validators.required],
     teamCode: ['', Validators.required]
   });
 
-  ngOnInit() {
-    this._authService.authState.subscribe((user) => {
-      this.user = user;
-      this.loggedIn = (user !== null);
-    });
+  ngOnInit(): void {
+    this.authState$.subscribe(res => {
+      this._router.navigate(['/guess-the-song']);
+    })
   }
 
   onSubmit(): void {
