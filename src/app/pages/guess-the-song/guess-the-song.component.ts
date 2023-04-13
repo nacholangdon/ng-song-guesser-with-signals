@@ -1,38 +1,34 @@
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
-import { map, Observable } from 'rxjs';
+import { BehaviorSubject, interval, map, Observable, startWith, switchMap, take, takeWhile } from 'rxjs';
 
-import { SongsService } from '../../core/services/songs.service';
-<<<<<<< Updated upstream
-import { ActivatedRoute } from '@angular/router';
-=======
-import { ButtonComponent } from '../../shared/components/button/button.component';
-import { GoogleLoginProvider, SocialAuthService } from '@abacritt/angularx-social-login';
->>>>>>> Stashed changes
+import { Song } from 'src/app/core/models/song';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { SongsService } from 'src/app/core/services/songs.service';
+import { ButtonComponent } from 'src/app/shared/components/button/button.component';
 
 @Component({
   selector: 'app-guess-the-song',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ButtonComponent, ReactiveFormsModule],
   templateUrl: './guess-the-song.component.html',
   styleUrls: ['./guess-the-song.component.scss']
 })
 export class GuessTheSongComponent {
 
+  private readonly _router = inject(Router);
   private readonly _fb = inject(FormBuilder);
-  private readonly _route = inject(ActivatedRoute);
   private readonly _songsService = inject(SongsService);
-<<<<<<< Updated upstream
-
-  public lyrics$: Observable<string[]> = this._getLyrics(+this._route.snapshot.queryParams['songId']);
-=======
-  private readonly _authService = inject(SocialAuthService);
+  private readonly _authService = inject(AuthService);
 
   public randomSongId = Math.floor(Math.random() * 8) + 1;
   public lyrics$: Observable<string[]> = this._getLyrics(this.randomSongId);
   public stopCondition$: BehaviorSubject<boolean> = new BehaviorSubject(false);
-  public authState$ = this._authService.authState;
+  public authState$ = this._authService.authState$;
+  public isLoggedIn$ = this._authService.isLoggedIn$;
 
   public songsForm = this._fb.group({
     songChoice: [null],
@@ -56,7 +52,15 @@ export class GuessTheSongComponent {
     map((elapsedTime) => ((elapsedTime + 1) / 30) * 100)
   );
 
-  onSubmit() {
+  public ngOnInit(): void {
+    this.authState$.subscribe(res => {
+      if (!res) {
+        this._router.navigate(['/login']);
+      }
+    });
+  }
+
+  public onSubmit() {
     const selectedSongId = this.songsForm.get('songChoice')?.value;
     if (Number(selectedSongId) === this.randomSongId) {
       console.log('isCorrect -> ', this.randomSongId);
@@ -65,12 +69,31 @@ export class GuessTheSongComponent {
       console.log('incorrect => ', Number(selectedSongId), this.randomSongId)
     }
   }
->>>>>>> Stashed changes
+
+  public signOut(): void {
+    this._authService.signOut();
+  }
 
   private _getLyrics(songId: number): Observable<string[]> {
     return this._songsService.getLyrics(songId).pipe(
       map((lyrics: string[]) => this._shuffleArray(lyrics))
     );
+  }
+
+  private _getSongOptions(songs: Song[], songId: number, listLength: number): Song[] {
+    const filteredSongs = songs.filter((song) => song.songId !== songId);
+    const shuffledSongs = filteredSongs.sort(() => Math.random() - 0.5);
+    const randomChoices = shuffledSongs.slice(0, listLength - 1);
+
+    const correctSong = songs.find((song) => song.songId === songId);
+    if (correctSong) {
+      randomChoices.push(correctSong);
+    }
+
+    // Shuffle the random choices array again to mix the correct song
+    const finalChoices = randomChoices.sort(() => Math.random() - 0.5);
+
+    return finalChoices;
   }
 
   private _shuffleArray(arr: string[]) {
@@ -81,11 +104,4 @@ export class GuessTheSongComponent {
     return arr;
   };
 
-  public signOut(): void {
-    this._authService.signOut();
-  }
-
-  public refreshGoogleToken(): void {
-    this._authService.refreshAuthToken(GoogleLoginProvider.PROVIDER_ID);
-  }
 }
