@@ -1,0 +1,21 @@
+<!--Nav-->
+<nav id="header" class="fixed w-full z-30 top-0 text-white">
+  <div class="w-full container mx-auto flex flex-wrap items-center justify-between mt-0 py-2">
+    <div class="pl-4 flex items-center">
+      <a class="toggleColour text-white no-underline hover:no-underline font-bold text-2xl lg:text-4xl" href="#">
+        NG SONG GUESSER
+      </a>
+    </div>
+
+    <ng-container *ngIf="vm$ | async as vm">
+      <div class="w-full lg:flex lg:items-center lg:w-auto hidden mt-2 lg:mt-0 bg-white lg:bg-transparent text-white p-4 lg:p-0 z-20" id="nav-content">
+        <div *ngIf="vm.authState as socialUser" class="flex flex-row items-center">
+          <img class="rounded-full w-1/6 mr-2" src="{{ socialUser?.photoUrl }}" referrerpolicy="no-referrer">
+          <h4 class="mr-2">Welcome {{ socialUser?.name }}</h4>
+          <app-button [value]="'Sign out'" (onClick)="signOut()"></app-button>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+  <hr class="border-b border-gray-100 opacity-25 my-0 py-0" />
+</nav>
