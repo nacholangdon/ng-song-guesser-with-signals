@@ -1,9 +1,9 @@
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
-import { BehaviorSubject, interval, map, Observable, startWith, switchMap, take, takeWhile } from 'rxjs';
+import { BehaviorSubject, combineLatest, interval, map, Observable, startWith, switchMap, take, takeWhile } from 'rxjs';
 
 import { Song } from 'src/app/core/models/song';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -21,16 +21,21 @@ export class GuessTheSongComponent {
 
   private readonly _router = inject(Router);
   private readonly _fb = inject(FormBuilder);
-  private readonly _route = inject(ActivatedRoute);
   private readonly _authService = inject(AuthService);
   private readonly _songsService = inject(SongsService);
 
-  public teamCode = this._route.snapshot.queryParams['teamCode'];
+  public teamCode = '';
   public randomSongId = Math.floor(Math.random() * 8) + 1;
   public lyrics$: Observable<string[]> = this._getLyrics(this.randomSongId);
   public stopCondition$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+
   public authState$ = this._authService.authState$;
-  public isLoggedIn$ = this._authService.isLoggedIn$;
+
+  public vm$ = combineLatest([
+    this._authService.authState$,
+    this._authService.isLoggedIn$,
+    this._authService.selectedTeam$
+  ]).pipe(map(([authState, isLoggedIn, selectedTeam]) => ({ authState, isLoggedIn, selectedTeam })));
 
   public songsForm = this._fb.group({
     songChoice: [null],
@@ -70,10 +75,6 @@ export class GuessTheSongComponent {
     } else {
       console.log('incorrect => ', Number(selectedSongId), this.randomSongId)
     }
-  }
-
-  public signOut(): void {
-    this._authService.signOut();
   }
 
   private _getLyrics(songId: number): Observable<string[]> {

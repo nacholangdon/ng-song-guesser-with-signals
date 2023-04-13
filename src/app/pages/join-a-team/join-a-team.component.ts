@@ -43,19 +43,15 @@ export class JoinATeamComponent implements OnInit {
     });
   }
 
-  public selectTeam(code: string): void {
-    debugger;
-    this._router.navigate(['/guess-the-song'], { queryParams: { teamCode: code } });
+  public selectTeam(team: Team): void {
+    this._authService.setTeam(team);
+    this._router.navigate(['/guess-the-song']);
   }
 
-  getTeams(name: string): Observable<Team[]> {
+  public getTeams(name: string): Observable<Team[]> {
     return this._teamsService.getTeams().pipe(
       map((response: Team[]) => response.filter((team: Team) => team.name.toLowerCase().includes(name.toLowerCase()))
     ));
-  }
-
-  public signOut(): void {
-    this._authService.signOut();
   }
 
 }

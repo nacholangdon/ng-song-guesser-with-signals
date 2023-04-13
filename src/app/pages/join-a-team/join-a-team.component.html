@@ -1,17 +1,6 @@
-<div class="min-h-screen bg-gray-100 flex items-center justify-center" *ngIf="isLoggedIn$ | async">
+<div class="flex items-center justify-center" *ngIf="isLoggedIn$ | async">
   <div class="w-full max-w-md mx-auto">
     <h1 class="text-3xl font-bold text-gray-800 dark:text-white md:text-4xl text-center mb-5">Join a team</h1>
-
-    <div *ngIf="authState$ | async as socialUser" class="bg-white rounded-lg overflow-hidden ring-1 ring-slate-900/5 dark:bg-slate-800 dark:highlight-white/5 dark:ring-0 p-8 text-center mb-4">
-      <img src="{{ socialUser?.photoUrl }}" referrerpolicy="no-referrer">
-      <div>
-        <h4>Welcome {{ socialUser?.name }}</h4>
-        <p>{{ socialUser?.email }}</p>
-      </div>
-      <div class="card-block">
-        <app-button [value]="'Sign out'" (onClick)="signOut()"></app-button>
-      </div>
-    </div>
 
     <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
       <div class="flex items-center justify-center">
@@ -32,7 +21,7 @@
 
           <div class="absolute mt-4 overflow-hidden rounded-md bg-white py-1 shadow-xl shadow-black/5 ring-1 ring-slate-700/10 w-full"
             *ngIf="teams$ | async as teams">
-            <div class="px-3 py-2 hover:bg-indigo-600 hover:text-white" *ngFor="let team of teams" (click)="selectTeam(team.code)">{{ team.name }}</div>
+            <div class="px-3 py-2 hover:bg-indigo-600 hover:text-white" *ngFor="let team of teams" (click)="selectTeam(team)">{{ team.name }}</div>
           </div>
 
         </div>
