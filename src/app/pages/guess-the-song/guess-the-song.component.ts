@@ -1,4 +1,4 @@
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
@@ -21,9 +21,11 @@ export class GuessTheSongComponent {
 
   private readonly _router = inject(Router);
   private readonly _fb = inject(FormBuilder);
-  private readonly _songsService = inject(SongsService);
+  private readonly _route = inject(ActivatedRoute);
   private readonly _authService = inject(AuthService);
+  private readonly _songsService = inject(SongsService);
 
+  public teamCode = this._route.snapshot.queryParams['teamCode'];
   public randomSongId = Math.floor(Math.random() * 8) + 1;
   public lyrics$: Observable<string[]> = this._getLyrics(this.randomSongId);
   public stopCondition$: BehaviorSubject<boolean> = new BehaviorSubject(false);

@@ -6,6 +6,7 @@
     <div>
       <h4>Welcome {{ socialUser?.name }}</h4>
       <p>{{ socialUser?.email }}</p>
+      <p>Team: {{ teamCode }}</p>
     </div>
     <div class="card-block">
       <app-button [value]="'Sign out'" (onClick)="signOut()"></app-button>
