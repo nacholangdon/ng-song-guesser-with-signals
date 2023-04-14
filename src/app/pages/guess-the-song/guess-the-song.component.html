@@ -34,13 +34,16 @@
           [value]="'Guess'"
         ></app-button>
       </div>
-      <div class="w-full h-4 bg-gray-300 mt-4">
-        <div
-          [ngStyle]="{ 'width': (countdown$ | async) + '%' }"
-          class="h-4 bg-green-500 transition-all duration-1000"
-        ></div>
-      </div>
     </form>
+
+    <div class="w-full h-4 mt-4" id="countdown">
+      <div *ngIf="vm_countdown$ | async as vm">
+        <div id="countdown-number">{{ vm.countdown_numeric_reversed }}</div>
+        <svg>
+          <circle r="18" cx="20" cy="20"></circle>
+        </svg>
+      </div>
+    </div>
 
   </div>
 </div>

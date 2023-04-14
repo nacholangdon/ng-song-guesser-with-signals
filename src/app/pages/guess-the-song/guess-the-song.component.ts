@@ -10,6 +10,10 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { SongsService } from 'src/app/core/services/songs.service';
 import { ButtonComponent } from 'src/app/shared/components/button/button.component';
 
+const PHRASE_INTERVAL = 5000;
+const COUNTDOWN_INTERVAL = 1000;
+const COUNTDOWN_SECONDS = 30;
+
 @Component({
   selector: 'app-guess-the-song',
   standalone: true,
@@ -46,18 +50,32 @@ export class GuessTheSongComponent {
     map(songs => this._getSongOptions(songs, this.randomSongId, 3))
   );
 
-  public currentPhrase$: Observable<string> = interval(5000).pipe(
+  public currentPhrase$: Observable<string> = interval(PHRASE_INTERVAL).pipe(
     takeWhile(() => !this.stopCondition$.getValue()),
     startWith(0),
     switchMap(() => this.lyrics$),
     map(lyricsArray => lyricsArray[Math.floor(Math.random() * lyricsArray.length)])
   );
 
-  public countdown$: Observable<number> = interval(1000).pipe(
+  private _countdown$: Observable<number> = interval(COUNTDOWN_INTERVAL).pipe(
     takeWhile(() => !this.stopCondition$.getValue()),
-    take(30),
+    take(COUNTDOWN_SECONDS)
+  );
+
+  private _countdown_reversed$: Observable<number> = this._countdown$.pipe(
+    takeWhile(() => !this.stopCondition$.getValue()),
+    map(seconds => COUNTDOWN_SECONDS - seconds)
+  );
+
+  private _countdown_percentage$: Observable<number> = this._countdown$.pipe(
     map((elapsedTime) => ((elapsedTime + 1) / 30) * 100)
   );
+
+  public vm_countdown$ = combineLatest([
+    this._countdown$,
+    this._countdown_reversed$,
+    this._countdown_percentage$,
+  ]).pipe(map(([_, countdown_numeric_reversed, countdown_percentage]) => ({ _, countdown_numeric_reversed, countdown_percentage })));
 
   public ngOnInit(): void {
     this.authState$.subscribe(res => {
@@ -73,7 +91,7 @@ export class GuessTheSongComponent {
       console.log('isCorrect -> ', this.randomSongId);
       this.stopCondition$.next(true);
     } else {
-      console.log('incorrect => ', Number(selectedSongId), this.randomSongId)
+      console.log('incorrect => ', Number(selectedSongId), this.randomSongId);
     }
   }
 
