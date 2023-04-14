@@ -29,7 +29,7 @@ svg circle {
   stroke-width: 2px;
   stroke: white;
   fill: none;
-  animation: countdown 30s linear infinite forwards;
+  animation: countdown 30s linear forwards;
 }
 
 @keyframes countdown {

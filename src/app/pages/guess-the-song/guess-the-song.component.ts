@@ -62,20 +62,11 @@ export class GuessTheSongComponent {
     take(COUNTDOWN_SECONDS)
   );
 
-  private _countdown_reversed$: Observable<number> = this._countdown$.pipe(
+  public countdown_reversed$: Observable<number> = this._countdown$.pipe(
     takeWhile(() => !this.stopCondition$.getValue()),
+    startWith(COUNTDOWN_SECONDS),
     map(seconds => COUNTDOWN_SECONDS - seconds)
   );
-
-  private _countdown_percentage$: Observable<number> = this._countdown$.pipe(
-    map((elapsedTime) => ((elapsedTime + 1) / 30) * 100)
-  );
-
-  public vm_countdown$ = combineLatest([
-    this._countdown$,
-    this._countdown_reversed$,
-    this._countdown_percentage$,
-  ]).pipe(map(([_, countdown_numeric_reversed, countdown_percentage]) => ({ _, countdown_numeric_reversed, countdown_percentage })));
 
   public ngOnInit(): void {
     this.authState$.subscribe(res => {
