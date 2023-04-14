@@ -17,4 +17,13 @@ export class UsersService {
       map(users => users.filter(user => user.teamCode === teamCode))
     );
   }
+
+  updateUserScore(scoreObj: {
+    email: string,
+    playedGames: number,
+    totalScore: number
+  }): Observable<boolean> {
+    console.log('scoreObj', scoreObj) // TODO: send an http request
+    return of(true)
+  }
 }
