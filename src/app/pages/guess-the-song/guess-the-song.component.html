@@ -36,13 +36,20 @@
       </div>
     </form>
 
-    <div class="w-full h-4 mt-4" id="countdown">
-      <div *ngIf="vm_countdown$ | async as vm">
-        <div id="countdown-number">{{ vm.countdown_numeric_reversed }}</div>
-        <svg>
-          <circle r="18" cx="20" cy="20"></circle>
-        </svg>
-      </div>
+    <div class="w-full h-4 mt-4">
+      <ng-container *ngIf="countdown_reversed$ | async as countdown">
+        <div *ngIf="countdown - 1 > 0; else timesUp" id="countdown">
+          <div id="countdown-number">{{ (countdown - 1) }}</div>
+          <svg>
+            <circle r="18" cx="20" cy="20"></circle>
+          </svg>
+        </div>
+        <ng-template #timesUp>
+          <div class="text-center">
+            <span class="font-bold">Time's up!</span>
+          </div>
+        </ng-template>
+      </ng-container>
     </div>
 
   </div>
