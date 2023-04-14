@@ -1,12 +1,17 @@
-
 <div class="flex flex-col items-center justify-center mb-6" *ngIf="vm$ | async as vm">
-  <div class="w-full max-w-md mx-auto">
+  <div class="w-full max-w-xl mx-auto">
 
     <p *ngIf="vm.selectedTeam as team" class="my-5 text-center">
       Your team is <strong>{{ team.name }}</strong>
     </p>
 
-    <form [formGroup]="songsForm" (ngSubmit)="onSubmit()" class="bg-white shadow-md rounded px-8 pt-6 pb-8 text-black">
+    <div class="text-center mb-4">
+      <p>Attempts: {{ attempts }} / 3</p>
+      <p>Played Games: {{ playedGames }}</p>
+      <p>Total Score: {{ totalScore }}</p>
+    </div>
+
+    <form [formGroup]="songsForm" (ngSubmit)="onSubmit()" [ngClass]="{'opacity-50': isGameOver}" class="bg-white shadow-md rounded px-8 pt-6 pb-8 text-black">
       <div class="mb-6">
         <div *ngIf="(currentPhrase$ | async) as currentPhrase; else loading">
           <span class="font-bold">{{ currentPhrase }}</span>
@@ -23,13 +28,14 @@
             [value]="song.songId"
             formControlName="songChoice"
             [id]="'song-' + song.songId"
+            [disabled]="isGameOver"
           />
           <label [for]="'song-' + song.songId">{{ song.title }}</label>
         </div>
       </div>
       <div class="flex items-center justify-between pt-4">
         <app-button
-          [isDisabled]="!!(stopCondition$ | async)"
+          [isDisabled]="!!(stopCondition$ | async) || isGameOver"
           [inputType]="'submit'"
           [value]="'Guess'"
         ></app-button>
@@ -38,7 +44,7 @@
 
     <div class="w-full h-4 mt-4">
       <ng-container *ngIf="countdown_reversed$ | async as countdown">
-        <div *ngIf="countdown - 1 > 0; else timesUp" id="countdown">
+        <div *ngIf="countdown - 1 > 0 && !isGameOver; else timesUp" id="countdown">
           <div id="countdown-number">{{ (countdown - 1) }}</div>
           <svg>
             <circle r="18" cx="20" cy="20"></circle>
@@ -46,7 +52,8 @@
         </div>
         <ng-template #timesUp>
           <div class="text-center">
-            <span class="font-bold">Time's up!</span>
+            <span *ngIf="!isGameOver" class="font-bold">Time's up!</span>
+            <span *ngIf="isGameOver" class="font-bold">Game Over</span>
           </div>
         </ng-template>
       </ng-container>
