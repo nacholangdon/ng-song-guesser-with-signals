@@ -89,10 +89,10 @@ export class GuessTheSongComponent {
     });
   }
 
-  public onSubmit() {
+  public onSubmit(selectedOptionId: number) {
     this.attempts++;
-    const selectedSongId = this.songsForm.get('songChoice')?.value;
-    if (Number(selectedSongId) === this.correctSong.id) {
+    console.log(selectedOptionId, this.correctSong.id)
+    if (Number(selectedOptionId) === this.correctSong.id) {
       console.log('isCorrect -> ', this.randomSongPosId);
 
       // Update playedGames and totalScore
@@ -111,7 +111,7 @@ export class GuessTheSongComponent {
       })
     } else {
       this._toggleClass('form.bg-white.shadow-md.rounded', 'shake-error', COUNTDOWN_INTERVAL);
-      console.log('incorrect => ', Number(selectedSongId), this.randomSongPosId);
+      console.log('incorrect => ', Number(selectedOptionId), this.randomSongPosId);
     }
 
     if (this.attempts >= 3) {
