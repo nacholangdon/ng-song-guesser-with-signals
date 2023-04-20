@@ -15,6 +15,7 @@ import { DOCUMENT } from '@angular/common';
 const PHRASE_INTERVAL = 5000;
 const COUNTDOWN_INTERVAL = 1000;
 const COUNTDOWN_SECONDS = 30;
+const SONGS_OPTIONS = 5;
 
 @Component({
   selector: 'app-guess-the-song',
@@ -38,8 +39,9 @@ export class GuessTheSongComponent {
   public isGameOver = false;
 
   public teamCode = '';
-  public randomSongId = Math.floor(Math.random() * 8) + 1;
-  public lyrics$: Observable<string[]> = this._getLyrics(this.randomSongId);
+  public randomSongPosId = Math.floor(Math.random() * SONGS_OPTIONS);
+  public lyrics$: Observable<string[]> = this._getLyrics(this.randomSongPosId);
+  correctSong!: Song;
 
   private _resetTimer$ = new Subject();
   private _songCorrect$ = new Subject<void>();
@@ -49,7 +51,7 @@ export class GuessTheSongComponent {
 
   private _songs$: Observable<Song[]> = this._songsService.getSongs().pipe(
     take(1),
-    map(songs => this._getSongOptions(songs, this.randomSongId, 5))
+    map(songs => this._getSongOptions(songs, this.randomSongPosId, SONGS_OPTIONS))
   );
 
   private _timer$: Observable<number> = this._resetTimer$.pipe(
@@ -89,8 +91,8 @@ export class GuessTheSongComponent {
   public onSubmit() {
     this.attempts++;
     const selectedSongId = this.songsForm.get('songChoice')?.value;
-    if (Number(selectedSongId) === this.randomSongId) {
-      console.log('isCorrect -> ', this.randomSongId);
+    if (Number(selectedSongId) === this.correctSong.id) {
+      console.log('isCorrect -> ', this.randomSongPosId);
 
       // Update playedGames and totalScore
       this.playedGames++;
@@ -100,7 +102,7 @@ export class GuessTheSongComponent {
       // Reset attempts and select another song
       timer(1000).subscribe(_ => {
         this.attempts = 0;
-        this.randomSongId = Math.floor(Math.random() * 8) + 1;
+        this.randomSongPosId = Math.floor(Math.random() * SONGS_OPTIONS);
 
         this._stopCondition$.next(false);
         this._songCorrect$.next();
@@ -108,7 +110,7 @@ export class GuessTheSongComponent {
       })
     } else {
       this._toggleClass('form.bg-white.shadow-md.rounded', 'shake-error', COUNTDOWN_INTERVAL);
-      console.log('incorrect => ', Number(selectedSongId), this.randomSongId);
+      console.log('incorrect => ', Number(selectedSongId), this.randomSongPosId);
     }
 
     if (this.attempts >= 3) {
@@ -154,20 +156,20 @@ export class GuessTheSongComponent {
       });
   }
 
-  private _getLyrics(songId: number): Observable<string[]> {
-    return this._songsService.getLyrics(songId).pipe(
+  private _getLyrics(songPosId: number): Observable<string[]> {
+    return this._songsService.getLyrics(songPosId).pipe(
       map((lyrics: string[]) => this._shuffleArray(lyrics))
     );
   }
 
-  private _getSongOptions(songs: Song[], songId: number, listLength: number): Song[] {
-    const filteredSongs = songs.filter((song) => song.id !== songId);
+  private _getSongOptions(songs: Song[], songPosId: number, listLength: number): Song[] {
+    const filteredSongs = songs.filter((song, i) => i !== songPosId);
     const shuffledSongs = filteredSongs.sort(() => Math.random() - 0.5);
     const randomChoices = shuffledSongs.slice(0, listLength - 1);
 
-    const correctSong = songs.find((song) => song.id === songId);
-    if (correctSong) {
-      randomChoices.push(correctSong);
+    this.correctSong = songs[songPosId];
+    if (this.correctSong) {
+      randomChoices.push(this.correctSong);
     }
 
     // Shuffle the random choices array again to mix the correct song

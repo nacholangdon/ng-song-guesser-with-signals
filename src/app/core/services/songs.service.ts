@@ -15,12 +15,12 @@ export class SongsService {
 
   getSongs(): Observable<Song[]> {
     const headers = new HttpHeaders().append('appKey', 'YOUR_APP_KEY');
-    return this.http.get<Song[]>('http://137.184.76.157:3000/song/10', { headers });
+    return this.http.get<Song[]>('http://137.184.76.157:3000/song/5', { headers });
   }
 
-  getLyrics(songId: number): Observable<string[]> {
+  getLyrics(songPosId: number): Observable<string[]> {
     return this.getSongs().pipe(
-      map(songs => songs.find(song => song.id === songId)),
+      map(songs => songs[songPosId]),
       map(song => song?.lyrics ?? [])
     );
   }
