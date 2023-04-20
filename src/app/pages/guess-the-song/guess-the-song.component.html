@@ -29,16 +29,16 @@
             hidden="hidden"
             type="radio"
             formControlName="songChoice"
-            [id]="'song-' + song.songId"
-            [value]="song.songId"
+            [id]="'song-' + song.id"
+            [value]="song.id"
             [disabled]="isGameOver"
           />
           <label
             [class.pointer-events-none]="isGameOver"
-            [for]="'song-' + song.songId"
+            [for]="'song-' + song.id"
             class="px-2 py-1 rounded-lg flex justify-center items-center font-bold w-full h-10 lg:h-14 hover:cursor-pointer"
           >
-          {{ song.title }}
+          {{ song.name }}
           </label>
         </div>
       </div>

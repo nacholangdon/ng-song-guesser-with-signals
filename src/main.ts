@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { AppComponent } from './app/app.component';
 import { routes } from './routes';
 import { GoogleLoginProvider, SocialAuthServiceConfig } from '@abacritt/angularx-social-login';
+import { provideHttpClient } from '@angular/common/http';
 
 // TODO: config envs keys
 // if (environment.production) {
@@ -12,6 +13,7 @@ import { GoogleLoginProvider, SocialAuthServiceConfig } from '@abacritt/angularx
 
 bootstrapApplication(AppComponent, {
   providers: [
+    provideHttpClient(),
     provideRouter(routes),
     {
       provide: 'SocialAuthServiceConfig',
