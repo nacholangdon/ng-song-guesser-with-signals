@@ -11,7 +11,9 @@ import { FooterComponent } from './core/components/footer/footer.component';
   template: `
     <div class="min-h-screen flex flex-col items-between justify-between">
       <app-header></app-header>
-      <router-outlet></router-outlet>
+      <div class="wrapper">
+        <router-outlet></router-outlet>
+      </div>
       <app-footer></app-footer>
     </div>
   `

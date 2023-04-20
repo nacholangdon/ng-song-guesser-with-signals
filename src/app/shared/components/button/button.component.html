@@ -2,7 +2,8 @@
 <button
   class="btn-primary"
   [type]="inputType"
-  [ngClass]="{'btn-primary-disabled': isDisabled, 'rounded-none': style === 'none', 'rounded-full': style === 'full' }"
+  [class]="classes"
+  [ngClass]="{'btn-primary-disabled': isDisabled, 'rounded-lg': style === '', 'rounded-none': style === 'none', 'rounded-full': style === 'full' }"
   [disabled]="isDisabled"
   (click)="onButtonClick()"
 >
