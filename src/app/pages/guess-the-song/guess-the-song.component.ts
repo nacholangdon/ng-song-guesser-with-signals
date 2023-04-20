@@ -40,12 +40,12 @@ export class GuessTheSongComponent {
 
   public teamCode = '';
   public randomSongPosId = Math.floor(Math.random() * SONGS_OPTIONS);
-  public lyrics$: Observable<string[]> = this._getLyrics(this.randomSongPosId);
   correctSong!: Song;
-
+  
   private _resetTimer$ = new Subject();
   private _songCorrect$ = new Subject<void>();
   private _stopCondition$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  public _lyrics$: Observable<string[]> = this._getLyrics(this.randomSongPosId);
 
   public authState$ = this._authService.authState$;
 
@@ -56,6 +56,7 @@ export class GuessTheSongComponent {
 
   private _timer$: Observable<number> = this._resetTimer$.pipe(
     startWith(void 0),
+    tap(() => console.log('entro aca _timer$')),
     switchMap(() => timer(0, COUNTDOWN_INTERVAL)),
     map(num => COUNTDOWN_SECONDS - num)
   );
@@ -63,7 +64,7 @@ export class GuessTheSongComponent {
   public _currentPhrase$: Observable<string> = interval(PHRASE_INTERVAL).pipe(
     takeWhile(() => !this._stopCondition$.getValue()),
     startWith(0),
-    switchMap(() => this.lyrics$),
+    switchMap(() => this._lyrics$),
     map(lyricsArray => lyricsArray[Math.floor(Math.random() * lyricsArray.length)])
   );
 
@@ -174,6 +175,8 @@ export class GuessTheSongComponent {
 
     // Shuffle the random choices array again to mix the correct song
     const finalChoices = randomChoices.sort(() => Math.random() - 0.5);
+
+    console.log({finalChoices});
 
     return finalChoices;
   }

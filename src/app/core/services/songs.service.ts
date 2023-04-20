@@ -1,21 +1,20 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { map, Observable, of, take, tap } from 'rxjs';
+
+import { map, Observable } from 'rxjs';
 
 import { Song } from '../models/song';
-import { SONG_MOCK } from '../../../mocks/song-mock';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SongsService {
 
-  constructor(private http: HttpClient) {}
-
+  private _http = inject(HttpClient);
 
   getSongs(): Observable<Song[]> {
     const headers = new HttpHeaders().append('appKey', 'YOUR_APP_KEY');
-    return this.http.get<Song[]>('http://137.184.76.157:3000/song/5', { headers });
+    return this._http.get<Song[]>('http://137.184.76.157:3000/song/5', { headers });
   }
 
   getLyrics(songPosId: number): Observable<string[]> {
@@ -24,5 +23,5 @@ export class SongsService {
       map(song => song?.lyrics ?? [])
     );
   }
-  
+
 }
