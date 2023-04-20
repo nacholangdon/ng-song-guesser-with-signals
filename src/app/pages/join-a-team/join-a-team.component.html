@@ -19,7 +19,12 @@
 
         <div class="absolute mt-0 overflow-hidden rounded-md bg-white py-1 shadow-xl shadow-black/5 ring-1 ring-slate-700/10 w-full"
           *ngIf="teams$ | async as teams">
-          <div class="px-3 py-2 hover:bg-indigo-600 text-black" *ngFor="let team of teams" (click)="selectTeam(team)">{{ team.name }}</div>
+          <ng-container *ngIf="teams.length; else noItems">
+            <div class="px-3 py-2 hover:bg-indigo-600 text-black" *ngFor="let team of teams" (click)="selectTeam(team)">{{ team.name }}</div>
+          </ng-container>
+          <ng-template #noItems>
+            <div class="px-3 py-2 hover:bg-indigo-600 text-black">No results. Please try with another name.</div>
+          </ng-template>
         </div>
       </div>
 
