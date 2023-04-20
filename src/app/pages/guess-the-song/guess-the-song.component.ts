@@ -27,62 +27,56 @@ export class GuessTheSongComponent {
 
   private readonly _router = inject(Router);
   private readonly _fb = inject(FormBuilder);
+  private readonly _document = inject(DOCUMENT);
   private readonly _authService = inject(AuthService);
   private readonly _songsService = inject(SongsService);
   private readonly _userService = inject(UsersService);
-  private readonly _document = inject(DOCUMENT);
+
   public attempts = 0;
-  public playedGames = 0;
+  public playedGames = 1;
   public totalScore = 0;
   public isGameOver = false;
 
   public teamCode = '';
   public randomSongId = Math.floor(Math.random() * 8) + 1;
   public lyrics$: Observable<string[]> = this._getLyrics(this.randomSongId);
-  public stopCondition$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+
   private _resetTimer$ = new Subject();
-  private songCorrect$ = new Subject<void>();
+  private _songCorrect$ = new Subject<void>();
+  private _stopCondition$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   public authState$ = this._authService.authState$;
 
-  public vm$ = combineLatest([
-    this._authService.authState$,
-    this._authService.isLoggedIn$,
-    this._authService.selectedTeam$
-  ]).pipe(map(([authState, isLoggedIn, selectedTeam]) => ({ authState, isLoggedIn, selectedTeam })));
-
-  public songsForm = this._fb.group({
-    songChoice: [null],
-  });
-
-  public songs$: Observable<Song[]> = this._songsService.getSongs().pipe(
+  private _songs$: Observable<Song[]> = this._songsService.getSongs().pipe(
     take(1),
     map(songs => this._getSongOptions(songs, this.randomSongId, 5))
   );
 
-  public currentPhrase$: Observable<string> = interval(PHRASE_INTERVAL).pipe(
-    takeWhile(() => !this.stopCondition$.getValue()),
-    startWith(0),
-    switchMap(() => this.lyrics$),
-    map(lyricsArray => lyricsArray[Math.floor(Math.random() * lyricsArray.length)])
-  );
-
-  public timer$: Observable<Number> = this._resetTimer$.pipe(
+  private _timer$: Observable<number> = this._resetTimer$.pipe(
     startWith(void 0),
     switchMap(() => timer(0, COUNTDOWN_INTERVAL)),
     map(num => COUNTDOWN_SECONDS - num)
   );
 
-  public countdown_reversed$: Observable<number> = this.songCorrect$.pipe(
-    startWith(null),
-    switchMap(() =>
-      timer(0, COUNTDOWN_INTERVAL).pipe(
-        takeWhile(() => !this.stopCondition$.getValue()),
-        map(seconds => COUNTDOWN_SECONDS - seconds),
-        take(COUNTDOWN_SECONDS + 1)
-      )
-    )
+  public _currentPhrase$: Observable<string> = interval(PHRASE_INTERVAL).pipe(
+    takeWhile(() => !this._stopCondition$.getValue()),
+    startWith(0),
+    switchMap(() => this.lyrics$),
+    map(lyricsArray => lyricsArray[Math.floor(Math.random() * lyricsArray.length)])
   );
+
+  public vm$ = combineLatest([
+    this._authService.authState$,
+    this._authService.isLoggedIn$,
+    this._authService.selectedTeam$,
+    this._songs$,
+    this._timer$,
+    this._currentPhrase$
+  ]).pipe(map(([authState, isLoggedIn, selectedTeam, songs, timer, currentPhrase]) => ({ authState, isLoggedIn, selectedTeam, songs, timer, currentPhrase })));
+
+  public songsForm = this._fb.group({
+    songChoice: [null],
+  });
 
   public ngOnInit(): void {
     this.authState$.subscribe(res => {
@@ -90,19 +84,6 @@ export class GuessTheSongComponent {
         this._router.navigate(['/login']);
       }
     });
-  }
-  private _resetCountdown(){
-    this._resetTimer$.next(void 0);
-    // Had to use document to be clean :/
-    this._toggleClass('#countdown svg', 'active', COUNTDOWN_INTERVAL / 2);
-  }
-
-  private _toggleClass(selector: string, className: string, interval: number): void {
-    const el = this._document.querySelector(selector);
-    el?.classList.toggle(className);
-    setTimeout(() => {
-      el?.classList.toggle(className);
-    }, interval);
   }
 
   public onSubmit() {
@@ -120,13 +101,9 @@ export class GuessTheSongComponent {
       timer(1000).subscribe(_ => {
         this.attempts = 0;
         this.randomSongId = Math.floor(Math.random() * 8) + 1;
-        this.lyrics$ = this._getLyrics(this.randomSongId);
-        this.songs$ = this._songsService.getSongs().pipe(
-          take(1),
-          map(songs => this._getSongOptions(songs, this.randomSongId, 5))
-        );
-        this.stopCondition$.next(false);
-        this.songCorrect$.next();
+
+        this._stopCondition$.next(false);
+        this._songCorrect$.next();
         this._resetCountdown();
       })
     } else {
@@ -135,13 +112,27 @@ export class GuessTheSongComponent {
     }
 
     if (this.attempts >= 3) {
-      this.gameOver();
+      this._gameOver();
     }
   }
 
-  private gameOver() {
+  private _resetCountdown(){
+    this._resetTimer$.next(void 0);
+    // Had to use document to be clean :/
+    this._toggleClass('#countdown svg', 'active', COUNTDOWN_INTERVAL / 2);
+  }
+
+  private _toggleClass(selector: string, className: string, interval: number): void {
+    const el = this._document.querySelector(selector);
+    el?.classList.toggle(className);
+    setTimeout(() => {
+      el?.classList.toggle(className);
+    }, interval);
+  }
+
+  private _gameOver() {
     this.isGameOver = true;
-    this.stopCondition$.next(true);
+    this._stopCondition$.next(true);
 
     // Send score object to UserService
     this._authService.authState$
@@ -191,6 +182,6 @@ export class GuessTheSongComponent {
       [arr[i], arr[j]] = [arr[j], arr[i]]; // Swap elements
     }
     return arr;
-  };
+  }
 
 }

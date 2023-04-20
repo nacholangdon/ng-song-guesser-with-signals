@@ -11,11 +11,11 @@
       <p>Total Score: {{ totalScore }}</p>
     </div>
 
-    <form [formGroup]="songsForm" (ngSubmit)="onSubmit()"
+    <form [formGroup]="songsForm"
       [ngClass]="{'opacity-50': isGameOver, 'cursor-not-allowed': isGameOver}"
       class="bg-white shadow-md rounded px-8 pt-6 pb-8 text-black">
       <div class="mb-6">
-        <div *ngIf="(currentPhrase$ | async) as currentPhrase; else loading">
+        <div *ngIf="vm.currentPhrase as currentPhrase; else loading">
           <span class="font-bold">{{ currentPhrase }}</span>
         </div>
         <ng-template #loading>
@@ -24,7 +24,7 @@
       </div>
       <div class="flex flex-col">
 
-        <div class="radio mb-2" *ngFor="let song of (songs$ | async)">
+        <div class="radio mb-2" *ngFor="let song of vm.songs">
           <input
             hidden="hidden"
             type="radio"
@@ -32,6 +32,7 @@
             [id]="'song-' + song.id"
             [value]="song.id"
             [disabled]="isGameOver"
+            (click)="onSubmit()"
           />
           <label
             [class.pointer-events-none]="isGameOver"
@@ -42,19 +43,10 @@
           </label>
         </div>
       </div>
-
-      <div class="flex items-stretch flex-col justify-between pt-4">
-        <app-button
-          [isDisabled]="!!(stopCondition$ | async) || isGameOver"
-          [inputType]="'submit'"
-          [value]="'Guess'"
-          [classes]="'w-full'"
-        ></app-button>
-      </div>
     </form>
 
     <div class="w-full h-4 mt-4">
-      <ng-container *ngIf="timer$ | async as timer">
+      <ng-container *ngIf="vm.timer as timer">
         <div *ngIf="timer > 0 && !isGameOver; else timesUp" id="countdown">
           <div id="countdown-number">{{ timer }}</div>
           <svg class="active">
