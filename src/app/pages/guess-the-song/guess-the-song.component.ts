@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
-import { BehaviorSubject, combineLatest, delay, filter, interval, map, Observable, startWith, switchMap, take, takeWhile, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, delay, filter, interval, map, Observable, startWith, Subject, switchMap, take, takeWhile, tap, timer } from 'rxjs';
 
 import { Song } from 'src/app/core/models/song';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { SongsService } from 'src/app/core/services/songs.service';
 import { ButtonComponent } from 'src/app/shared/components/button/button.component';
 import { UsersService } from 'src/app/core/services/users.service';
+import { DOCUMENT } from '@angular/common';
 
 const PHRASE_INTERVAL = 5000;
 const COUNTDOWN_INTERVAL = 1000;
@@ -29,7 +30,7 @@ export class GuessTheSongComponent {
   private readonly _authService = inject(AuthService);
   private readonly _songsService = inject(SongsService);
   private readonly _userService = inject(UsersService);
-
+  private readonly _document = inject(DOCUMENT);
   public attempts = 0;
   public playedGames = 0;
   public totalScore = 0;
@@ -39,6 +40,7 @@ export class GuessTheSongComponent {
   public randomSongId = Math.floor(Math.random() * 8) + 1;
   public lyrics$: Observable<string[]> = this._getLyrics(this.randomSongId);
   public stopCondition$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  private _resetTimer$ = new Subject();
 
   public authState$ = this._authService.authState$;
 
@@ -64,15 +66,10 @@ export class GuessTheSongComponent {
     map(lyricsArray => lyricsArray[Math.floor(Math.random() * lyricsArray.length)])
   );
 
-  private _countdown$: Observable<number> = interval(COUNTDOWN_INTERVAL).pipe(
-    takeWhile(() => !this.stopCondition$.getValue()),
-    take(COUNTDOWN_SECONDS)
-  );
-
-  public countdown_reversed$: Observable<number> = this._countdown$.pipe(
-    takeWhile(() => !this.stopCondition$.getValue()),
-    startWith(COUNTDOWN_SECONDS),
-    map(seconds => COUNTDOWN_SECONDS - seconds)
+  public timer$: Observable<Number> = this._resetTimer$.pipe(
+    startWith(void 0),
+    switchMap(() => timer(0, COUNTDOWN_INTERVAL)),
+    map(num => COUNTDOWN_SECONDS - num),
   );
 
   public ngOnInit(): void {
@@ -81,6 +78,19 @@ export class GuessTheSongComponent {
         this._router.navigate(['/login']);
       }
     });
+  }
+  private _resetCountdown(){
+    this._resetTimer$.next(void 0);
+    // Had to use document to be clean :/
+    this._toggleClass('#countdown svg', 'active', COUNTDOWN_INTERVAL / 2);
+  }
+
+  private _toggleClass(selector: string, className: string, interval: number): void {
+    const el = this._document.querySelector(selector);
+    el?.classList.toggle(className);
+    setTimeout(() => {
+      el?.classList.toggle(className);
+    }, interval);
   }
 
   public onSubmit() {
@@ -102,8 +112,11 @@ export class GuessTheSongComponent {
         map(songs => this._getSongOptions(songs, this.randomSongId, 5))
       );
       this.stopCondition$.next(false);
+      this._resetCountdown();
     } else {
+      this._toggleClass('form.bg-white.shadow-md.rounded', 'shake-error', COUNTDOWN_INTERVAL);
       console.log('incorrect => ', Number(selectedSongId), this.randomSongId);
+      this._resetCountdown();
     }
 
     if (this.attempts >= 3) {
