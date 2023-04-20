@@ -40,7 +40,7 @@
         </div>
       </div>
 
-      <div class="flex items-center justify-between pt-4">
+      <div class="flex items-stretch flex-col justify-between pt-4">
         <app-button
           [isDisabled]="!!(stopCondition$ | async) || isGameOver"
           [inputType]="'submit'"
