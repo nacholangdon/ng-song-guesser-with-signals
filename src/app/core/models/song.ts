@@ -1,6 +1,6 @@
 export interface Song {
-  songId: number;
-  title: string;
+  id: number;
+  name: string;
   artist?: string;
   genre?: string;
   lyrics?: string[];

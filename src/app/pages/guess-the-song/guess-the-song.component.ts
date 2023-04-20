@@ -142,11 +142,11 @@ export class GuessTheSongComponent {
   }
 
   private _getSongOptions(songs: Song[], songId: number, listLength: number): Song[] {
-    const filteredSongs = songs.filter((song) => song.songId !== songId);
+    const filteredSongs = songs.filter((song) => song.id !== songId);
     const shuffledSongs = filteredSongs.sort(() => Math.random() - 0.5);
     const randomChoices = shuffledSongs.slice(0, listLength - 1);
 
-    const correctSong = songs.find((song) => song.songId === songId);
+    const correctSong = songs.find((song) => song.id === songId);
     if (correctSong) {
       randomChoices.push(correctSong);
     }
