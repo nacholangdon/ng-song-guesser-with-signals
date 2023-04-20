@@ -41,6 +41,7 @@ export class GuessTheSongComponent {
   public lyrics$: Observable<string[]> = this._getLyrics(this.randomSongId);
   public stopCondition$: BehaviorSubject<boolean> = new BehaviorSubject(false);
   private _resetTimer$ = new Subject();
+  private songCorrect$ = new Subject<void>();
 
   public authState$ = this._authService.authState$;
 
@@ -69,7 +70,18 @@ export class GuessTheSongComponent {
   public timer$: Observable<Number> = this._resetTimer$.pipe(
     startWith(void 0),
     switchMap(() => timer(0, COUNTDOWN_INTERVAL)),
-    map(num => COUNTDOWN_SECONDS - num),
+    map(num => COUNTDOWN_SECONDS - num)
+  );
+
+  public countdown_reversed$: Observable<number> = this.songCorrect$.pipe(
+    startWith(null),
+    switchMap(() =>
+      timer(0, COUNTDOWN_INTERVAL).pipe(
+        takeWhile(() => !this.stopCondition$.getValue()),
+        map(seconds => COUNTDOWN_SECONDS - seconds),
+        take(COUNTDOWN_SECONDS + 1)
+      )
+    )
   );
 
   public ngOnInit(): void {
@@ -102,21 +114,24 @@ export class GuessTheSongComponent {
       // Update playedGames and totalScore
       this.playedGames++;
       this.totalScore += this.attempts === 1 ? 5 : this.attempts === 2 ? 3 : 1;
-
+      // feedback message
+      console.log('FEEDBACK MESSAGE: totalScore => ', this.totalScore)
       // Reset attempts and select another song
-      this.attempts = 0;
-      this.randomSongId = Math.floor(Math.random() * 8) + 1;
-      this.lyrics$ = this._getLyrics(this.randomSongId);
-      this.songs$ = this._songsService.getSongs().pipe(
-        take(1),
-        map(songs => this._getSongOptions(songs, this.randomSongId, 5))
-      );
-      this.stopCondition$.next(false);
-      this._resetCountdown();
+      timer(1000).subscribe(_ => {
+        this.attempts = 0;
+        this.randomSongId = Math.floor(Math.random() * 8) + 1;
+        this.lyrics$ = this._getLyrics(this.randomSongId);
+        this.songs$ = this._songsService.getSongs().pipe(
+          take(1),
+          map(songs => this._getSongOptions(songs, this.randomSongId, 5))
+        );
+        this.stopCondition$.next(false);
+        this.songCorrect$.next();
+        this._resetCountdown();
+      })
     } else {
       this._toggleClass('form.bg-white.shadow-md.rounded', 'shake-error', COUNTDOWN_INTERVAL);
       console.log('incorrect => ', Number(selectedSongId), this.randomSongId);
-      this._resetCountdown();
     }
 
     if (this.attempts >= 3) {
