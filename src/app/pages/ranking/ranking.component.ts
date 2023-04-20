@@ -36,7 +36,6 @@ export class RankingComponent implements OnInit {
     );
 
     this.authState$.subscribe(res => {
-      debugger;
       if (!res) {
         this._router.navigate(['/login']);
       }
