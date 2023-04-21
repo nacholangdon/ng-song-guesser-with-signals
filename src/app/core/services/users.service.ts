@@ -28,19 +28,19 @@ export class UsersService {
 
   updateUserScore(scoreObj: {
     email: string,
-    playedGames: number,
-    totalScore: number
-  }): Observable<boolean> {
+    playedGames?: number,
+    score: number
+  }): Observable<User> {
     console.log('scoreObj', scoreObj) // TODO: send an http request
     const headers = new HttpHeaders().append('appKey', 'YOUR_APP_KEY');
-    // return this._http.put<User[]>(
-    //   `${Constants.API_URL}/player/score`,
-    //   {
-    //     email,
-    //     score: totalScore
-    //   },
-    //   { headers }
-    // );
-    return of(true)
+    const { email, score } = scoreObj;
+    return this._http.put<User>(
+      `${Constants.API_URL}/player/score`,
+      {
+        email,
+        score,
+      },
+      { headers }
+    );
   }
 }
