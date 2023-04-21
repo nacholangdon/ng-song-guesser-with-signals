@@ -1,6 +1,8 @@
-<div class="flex flex-col items-center justify-center mb-6" *ngIf="vm$ | async as vm">
+<div class="flex flex-col items-center justify-center mb-6" *ngIf="vm$ | async as vm; else loadingData">
   <div class="w-full max-w-xl mx-auto">
-
+    <div class="feedback-container">
+      <app-feedback-word *ngIf="showFeedback"></app-feedback-word>
+    </div>
     <p *ngIf="vm.selectedTeam as team" class="my-5 text-center">
       Your team is <strong>{{ team.name }}</strong>
     </p>
@@ -64,3 +66,8 @@
 
   </div>
 </div>
+<ng-template #loadingData>
+  <div class="feedback-container">
+    <app-feedback-word></app-feedback-word>
+  </div>
+</ng-template>

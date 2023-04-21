@@ -4,6 +4,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { Song } from '../models/song';
+import { Constants } from '../models/constant';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,7 @@ export class SongsService {
   getSongs(): Observable<Song[]> {
     console.log('esto no deberia ejecutarse mas de una vez');
     const headers = new HttpHeaders().append('appKey', 'YOUR_APP_KEY');
-    return this._http.get<Song[]>('http://137.184.76.157:3000/song/5', { headers });
+    return this._http.get<Song[]>(`${Constants.API_URL}/song/${Constants.SONGS_OPTIONS}`, { headers });
   }
 
 }

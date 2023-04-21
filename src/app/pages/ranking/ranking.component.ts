@@ -28,7 +28,7 @@ export class RankingComponent implements OnInit {
   teamCode = '';
 
   public ngOnInit(): void {
-    const teamCode = this._route.snapshot.queryParams['teamCode'];
+    const teamCode = this._route.snapshot.queryParams['teamCode'] || 'teamA1';
 
     this.teamCode = teamCode;
     this.users$ = this._userService.getUsersByTeamCode(teamCode).pipe(

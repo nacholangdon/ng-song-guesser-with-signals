@@ -1,5 +1,6 @@
 export interface User {
-  username: string;
-  teamCode: string;
+  email: string;
+  teamCode?: string;
   score: number;
+  playedGames?: number;
 }
