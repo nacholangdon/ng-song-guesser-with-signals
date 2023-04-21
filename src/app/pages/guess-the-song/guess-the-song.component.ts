@@ -1,4 +1,5 @@
 import { Router } from '@angular/router';
+import { DOCUMENT } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { Component, inject, ViewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
@@ -6,13 +7,14 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { BehaviorSubject, combineLatest, delay, filter, interval, map, Observable, of, shareReplay, Subject, switchMap, take, takeWhile, tap, timer } from 'rxjs';
 
 import { Song } from 'src/app/core/models/song';
+import { Constants } from 'src/app/core/models/constant';
+
 import { AuthService } from 'src/app/core/services/auth.service';
 import { SongsService } from 'src/app/core/services/songs.service';
-import { ButtonComponent } from 'src/app/shared/components/button/button.component';
 import { UsersService } from 'src/app/core/services/users.service';
-import { DOCUMENT } from '@angular/common';
+
+import { ButtonComponent } from 'src/app/shared/components/button/button.component';
 import { FeedbackWordComponent } from 'src/app/shared/components/feedback-word/feedback-word.component';
-import { Constants } from 'src/app/core/models/constant';
 
 @Component({
   selector: 'app-guess-the-song',

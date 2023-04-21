@@ -1,6 +1,6 @@
-import { Component, ElementRef, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AnimationBuilder, AnimationFactory, AnimationPlayer, NoopAnimationPlayer, animate, style } from '@angular/animations';
+import { Component, ElementRef, OnInit, inject } from '@angular/core';
+import { AnimationBuilder, AnimationFactory, AnimationPlayer, animate, style } from '@angular/animations';
 
 @Component({
   selector: 'app-feedback-word',
@@ -13,7 +13,7 @@ export class FeedbackWordComponent implements OnInit {
 
   private readonly elRef = inject(ElementRef);
   private readonly builder = inject(AnimationBuilder);
-  
+
   randomWord: string = 'Loading...';
   private player!: AnimationPlayer;
 
