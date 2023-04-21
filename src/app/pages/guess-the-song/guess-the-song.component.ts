@@ -173,8 +173,8 @@ export class GuessTheSongComponent {
         tap(authState => {
           const scoreObject = {
             email: authState.email,
-            playedGames: this.playedGames,
-            totalScore: this.totalScore
+            // playedGames: this.playedGames,
+            score: this.totalScore
           };
           this._userService.updateUserScore(scoreObject);
         }),
