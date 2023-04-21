@@ -1,9 +1,9 @@
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
-import { BehaviorSubject, combineLatest, delay, filter, interval, map, Observable, shareReplay, Subject, switchMap, take, takeWhile, tap, timer } from 'rxjs';
+import { BehaviorSubject, combineLatest, delay, filter, interval, map, Observable, of, shareReplay, Subject, switchMap, take, takeWhile, tap, timer } from 'rxjs';
 
 import { Song } from 'src/app/core/models/song';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -11,16 +11,13 @@ import { SongsService } from 'src/app/core/services/songs.service';
 import { ButtonComponent } from 'src/app/shared/components/button/button.component';
 import { UsersService } from 'src/app/core/services/users.service';
 import { DOCUMENT } from '@angular/common';
-
-const PHRASE_INTERVAL = 5000;
-const COUNTDOWN_INTERVAL = 1000;
-const COUNTDOWN_SECONDS = 30;
-const SONGS_OPTIONS = 5;
+import { FeedbackWordComponent } from 'src/app/shared/components/feedback-word/feedback-word.component';
+import { Constants } from 'src/app/core/models/constant';
 
 @Component({
   selector: 'app-guess-the-song',
   standalone: true,
-  imports: [CommonModule, ButtonComponent, ReactiveFormsModule],
+  imports: [CommonModule, ButtonComponent, ReactiveFormsModule, FeedbackWordComponent],
   templateUrl: './guess-the-song.component.html',
   styleUrls: ['./guess-the-song.component.scss']
 })
@@ -33,14 +30,17 @@ export class GuessTheSongComponent {
   private readonly _songsService = inject(SongsService);
   private readonly _userService = inject(UsersService);
 
+  @ViewChild(FeedbackWordComponent) randomWordComponent!: FeedbackWordComponent;
+
   public attempts = 0;
   public playedGames = 1;
   public totalScore = 0;
   public isGameOver = false;
 
   public teamCode = '';
-  public randomSongPosId = Math.floor(Math.random() * SONGS_OPTIONS);
+  public randomSongPosId = Math.floor(Math.random() * Constants.SONGS_OPTIONS);
   public correctSong!: Song;
+  public showFeedback = false;
 
   private _songCorrect$ = new Subject<void>();
   private _resetTimer$: BehaviorSubject<boolean> = new BehaviorSubject(true);
@@ -49,22 +49,29 @@ export class GuessTheSongComponent {
   public authState$ = this._authService.authState$;
 
   private _songs$: Observable<Song[]> = this._songsService.getSongs().pipe(
-    take(1),
+    map(songs => this._getSongOptions(songs, 0, Constants.SONGS_OPTIONS)),
     shareReplay(),
-    map(songs => this._getSongOptions(songs, 0, SONGS_OPTIONS))
   );
 
   private _lyrics$: Observable<string[]> = this._songs$.pipe(
-    map(songs => songs[0].lyrics || []),
-    tap((lyrics) => console.log('lyrics', lyrics))
+    tap(songs => console.log(songs)),
+    switchMap(songs => {
+      this.correctSong = songs[this.randomSongPosId];
+      return of(songs[this.randomSongPosId].lyrics || []);
+    }),
   );
 
   private _timer$: Observable<number> = this._resetTimer$.pipe(
-    switchMap(() => timer(0, COUNTDOWN_INTERVAL)),
-    map(num => COUNTDOWN_SECONDS - num)
+    switchMap(() => timer(0, Constants.COUNTDOWN_INTERVAL)),
+    map(num => Constants.COUNTDOWN_SECONDS - num),
+    tap(timeLeft => {
+      if (timeLeft === 0) {
+        this._gameOver();
+      }
+    })
   );
 
-  private _currentPhrase$: Observable<string> = interval(PHRASE_INTERVAL).pipe(
+  private _currentPhrase$: Observable<string> = interval(Constants.PHRASE_INTERVAL).pipe(
     takeWhile(() => !this._stopCondition$.getValue()),
     switchMap(() => this._lyrics$),
     map(lyricsArray => lyricsArray[Math.floor(Math.random() * lyricsArray.length)])
@@ -102,29 +109,49 @@ export class GuessTheSongComponent {
       this.totalScore += this.attempts === 1 ? 5 : this.attempts === 2 ? 3 : 1;
       // feedback message
       console.log('FEEDBACK MESSAGE: totalScore => ', this.totalScore)
+      this.setFeedback('Correct!');
       // Reset attempts and select another song
+      this.attempts = 0;
       timer(1000).subscribe(_ => {
-        this.attempts = 0;
-        this.randomSongPosId = Math.floor(Math.random() * SONGS_OPTIONS);
-
+        this.randomSongPosId = Math.floor(Math.random() * Constants.SONGS_OPTIONS);
         this._stopCondition$.next(false);
         this._songCorrect$.next();
         this._resetCountdown();
+        this.songsForm.reset();
+        this._songs$ = this._songsService.getSongs().pipe(
+          tap(songs => console.log(songs)),
+          map(songs => this._getSongOptions(songs, this.randomSongPosId, Constants.SONGS_OPTIONS)),
+          shareReplay(),
+        );
       });
     } else {
-      this._toggleClass('form.bg-white.shadow-md.rounded', 'shake-error', COUNTDOWN_INTERVAL);
+      this._toggleClass('form.bg-white.shadow-md.rounded', 'shake-error', Constants.COUNTDOWN_INTERVAL);
       console.log('incorrect => ', Number(selectedOptionId), this.randomSongPosId);
+      if (this.attempts === 2) {
+        this.setFeedback('Last Chance!');
+      }
     }
 
     if (this.attempts >= 3) {
+      this.setFeedback('Game Over!');
       this._gameOver();
     }
+  }
+
+  private setFeedback(word: string) {
+    this.showFeedback = true;
+    timer(0).subscribe(_ => {
+      this.randomWordComponent.startAnimation(word);
+    });
+    timer(1000).subscribe(_ => {
+      this.showFeedback = false;
+    })
   }
 
   private _resetCountdown() {
     this._resetTimer$.next(true);
     // Had to use document to be clean :/
-    this._toggleClass('#countdown svg', 'active', COUNTDOWN_INTERVAL / 2);
+    this._toggleClass('#countdown svg', 'active', Constants.COUNTDOWN_INTERVAL / 2);
   }
 
   private _toggleClass(selector: string, className: string, interval: number): void {
@@ -173,14 +200,6 @@ export class GuessTheSongComponent {
     const finalChoices = randomChoices.sort(() => Math.random() - 0.5);
 
     return finalChoices;
-  }
-
-  private _shuffleArray(arr: string[]) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]]; // Swap elements
-    }
-    return arr;
   }
 
 }
