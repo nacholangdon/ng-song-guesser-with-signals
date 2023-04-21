@@ -1,31 +1,37 @@
-<h1>Ranking for Team: {{ teamCode }}</h1>
 <div class="relative overflow-x-auto">
-  <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-      <tr>
-        <th scope="col" class="px-6 py-3">
-          Username
-        </th>
-        <th scope="col" class="px-6 py-3">
-          Score
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700" *ngFor="let user of users$ | async">
-        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-          {{ user.email }}
-        </th>
-        <td class="px-6 py-4">
-          {{ user.score}}
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <div class="flex justify-center mt-2">
-    <app-button
-      [value]="'START'"
-      (onClick)="goToSelectSong($event)"
-    ></app-button>
-  </div>
+  <ng-container *ngIf="(users$ | async) as users; else loading">
+    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+      <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <tr>
+          <th scope="col" class="px-6 py-3">
+            Username
+          </th>
+          <th scope="col" class="px-6 py-3">
+            Score
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700" *ngFor="let user of users">
+          <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+            {{ user.email }}
+          </th>
+          <td class="px-6 py-4">
+            {{ user.score}}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="flex justify-center mt-2">
+      <app-button
+        [value]="'START'"
+        (onClick)="goToSelectSong($event)"
+      ></app-button>
+    </div>
+  </ng-container>
+  <ng-template #loading>
+    <div class="feedback-container animate__animated animate__bounce animate__infinite">
+      <app-feedback-word></app-feedback-word>
+    </div>
+  </ng-template>
 </div>

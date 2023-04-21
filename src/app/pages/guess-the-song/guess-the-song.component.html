@@ -13,7 +13,9 @@
       <p>Total Score: {{ totalScore }}</p>
     </div>
 
-    <form [formGroup]="songsForm"
+    <form
+      *ngIf="showForm"
+      [formGroup]="songsForm"
       [ngClass]="{'opacity-50': isGameOver, 'cursor-not-allowed': isGameOver}"
       class="bg-white shadow-md rounded px-8 pt-6 pb-8 text-black">
       <div class="mb-6">
