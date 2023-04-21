@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
-import { BehaviorSubject, combineLatest, delay, filter, interval, map, Observable, startWith, Subject, switchMap, take, takeWhile, tap, timer } from 'rxjs';
+import { BehaviorSubject, combineLatest, delay, filter, interval, map, Observable, shareReplay, Subject, switchMap, take, takeWhile, tap, timer } from 'rxjs';
 
 import { Song } from 'src/app/core/models/song';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -40,30 +40,32 @@ export class GuessTheSongComponent {
 
   public teamCode = '';
   public randomSongPosId = Math.floor(Math.random() * SONGS_OPTIONS);
-  correctSong!: Song;
-  
-  private _resetTimer$ = new Subject();
+  public correctSong!: Song;
+
   private _songCorrect$ = new Subject<void>();
+  private _resetTimer$: BehaviorSubject<boolean> = new BehaviorSubject(true);
   private _stopCondition$: BehaviorSubject<boolean> = new BehaviorSubject(false);
-  public _lyrics$: Observable<string[]> = this._getLyrics(this.randomSongPosId);
 
   public authState$ = this._authService.authState$;
 
   private _songs$: Observable<Song[]> = this._songsService.getSongs().pipe(
     take(1),
-    map(songs => this._getSongOptions(songs, this.randomSongPosId, SONGS_OPTIONS))
+    shareReplay(),
+    map(songs => this._getSongOptions(songs, 0, SONGS_OPTIONS))
+  );
+
+  private _lyrics$: Observable<string[]> = this._songs$.pipe(
+    map(songs => songs[0].lyrics || []),
+    tap((lyrics) => console.log('lyrics', lyrics))
   );
 
   private _timer$: Observable<number> = this._resetTimer$.pipe(
-    startWith(void 0),
-    tap(() => console.log('entro aca _timer$')),
     switchMap(() => timer(0, COUNTDOWN_INTERVAL)),
     map(num => COUNTDOWN_SECONDS - num)
   );
 
-  public _currentPhrase$: Observable<string> = interval(PHRASE_INTERVAL).pipe(
+  private _currentPhrase$: Observable<string> = interval(PHRASE_INTERVAL).pipe(
     takeWhile(() => !this._stopCondition$.getValue()),
-    startWith(0),
     switchMap(() => this._lyrics$),
     map(lyricsArray => lyricsArray[Math.floor(Math.random() * lyricsArray.length)])
   );
@@ -108,7 +110,7 @@ export class GuessTheSongComponent {
         this._stopCondition$.next(false);
         this._songCorrect$.next();
         this._resetCountdown();
-      })
+      });
     } else {
       this._toggleClass('form.bg-white.shadow-md.rounded', 'shake-error', COUNTDOWN_INTERVAL);
       console.log('incorrect => ', Number(selectedOptionId), this.randomSongPosId);
@@ -119,8 +121,8 @@ export class GuessTheSongComponent {
     }
   }
 
-  private _resetCountdown(){
-    this._resetTimer$.next(void 0);
+  private _resetCountdown() {
+    this._resetTimer$.next(true);
     // Had to use document to be clean :/
     this._toggleClass('#countdown svg', 'active', COUNTDOWN_INTERVAL / 2);
   }
@@ -157,12 +159,6 @@ export class GuessTheSongComponent {
       });
   }
 
-  private _getLyrics(songPosId: number): Observable<string[]> {
-    return this._songsService.getLyrics(songPosId).pipe(
-      map((lyrics: string[]) => this._shuffleArray(lyrics))
-    );
-  }
-
   private _getSongOptions(songs: Song[], songPosId: number, listLength: number): Song[] {
     const filteredSongs = songs.filter((song, i) => i !== songPosId);
     const shuffledSongs = filteredSongs.sort(() => Math.random() - 0.5);
@@ -175,8 +171,6 @@ export class GuessTheSongComponent {
 
     // Shuffle the random choices array again to mix the correct song
     const finalChoices = randomChoices.sort(() => Math.random() - 0.5);
-
-    console.log({finalChoices});
 
     return finalChoices;
   }
