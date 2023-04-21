@@ -1,4 +1,4 @@
-<div class="relative overflow-x-auto">
+<div class="container mx-auto">
   <ng-container *ngIf="(users$ | async) as users; else loading">
     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
       <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -29,6 +29,7 @@
       ></app-button>
     </div>
   </ng-container>
+
   <ng-template #loading>
     <div class="feedback-container animate__animated animate__bounce animate__infinite">
       <app-feedback-word></app-feedback-word>
