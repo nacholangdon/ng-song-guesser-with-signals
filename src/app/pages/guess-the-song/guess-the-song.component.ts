@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, ViewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
-import { BehaviorSubject, combineLatest, delay, filter, interval, map, Observable, of, shareReplay, Subject, switchMap, take, takeWhile, tap, timer } from 'rxjs';
+import { BehaviorSubject, combineLatest, delay, filter, interval, map, Observable, of, shareReplay, Subject, switchMap, take, takeUntil, takeWhile, tap, timer } from 'rxjs';
 
 import { Song } from 'src/app/core/models/song';
 import { Constants } from 'src/app/core/models/constant';
@@ -43,6 +43,7 @@ export class GuessTheSongComponent {
   public randomSongPosId = Math.floor(Math.random() * Constants.SONGS_OPTIONS);
   public correctSong!: Song;
   public showFeedback = false;
+  public showForm = true;
 
   private _songCorrect$ = new Subject<void>();
   private _resetTimer$: BehaviorSubject<boolean> = new BehaviorSubject(true);
@@ -52,7 +53,7 @@ export class GuessTheSongComponent {
 
   private _songs$: Observable<Song[]> = this._songsService.getSongs().pipe(
     map(songs => this._getSongOptions(songs, 0, Constants.SONGS_OPTIONS)),
-    shareReplay(),
+    shareReplay()
   );
 
   private _lyrics$: Observable<string[]> = this._songs$.pipe(
@@ -104,31 +105,28 @@ export class GuessTheSongComponent {
     this.attempts++;
     console.log(selectedOptionId, this.correctSong.id)
     if (Number(selectedOptionId) === this.correctSong.id) {
-      console.log('isCorrect -> ', this.randomSongPosId);
+      // console.log('isCorrect -> ', this.randomSongPosId);
 
       // Update playedGames and totalScore
       this.playedGames++;
       this.totalScore += this.attempts === 1 ? 5 : this.attempts === 2 ? 3 : 1;
       // feedback message
-      console.log('FEEDBACK MESSAGE: totalScore => ', this.totalScore)
+      // console.log('FEEDBACK MESSAGE: totalScore => ', this.totalScore)
       this.setFeedback('Correct!');
       // Reset attempts and select another song
       this.attempts = 0;
+      this.showForm = false;
       timer(1000).subscribe(_ => {
         this.randomSongPosId = Math.floor(Math.random() * Constants.SONGS_OPTIONS);
         this._stopCondition$.next(false);
         this._songCorrect$.next();
         this._resetCountdown();
         this.songsForm.reset();
-        this._songs$ = this._songsService.getSongs().pipe(
-          tap(songs => console.log(songs)),
-          map(songs => this._getSongOptions(songs, this.randomSongPosId, Constants.SONGS_OPTIONS)),
-          shareReplay(),
-        );
+        this.showForm = true;
       });
     } else {
       this._toggleClass('form.bg-white.shadow-md.rounded', 'shake-error', Constants.COUNTDOWN_INTERVAL);
-      console.log('incorrect => ', Number(selectedOptionId), this.randomSongPosId);
+      // console.log('incorrect => ', Number(selectedOptionId), this.randomSongPosId);
       if (this.attempts === 2) {
         this.setFeedback('Last Chance!');
       }

@@ -24,7 +24,7 @@ export class LoginComponent {
   ngOnInit(): void {
     this._authState$.subscribe(res => {
       if (!!res) {
-        this._router.navigate(['/join-a-team']);
+        this._router.navigate(['/guess-the-song']);
       }
     });
   }
