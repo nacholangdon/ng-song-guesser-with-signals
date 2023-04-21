@@ -57,7 +57,6 @@ export class GuessTheSongComponent {
   );
 
   private _lyrics$: Observable<string[]> = this._songs$.pipe(
-    tap(songs => console.log(songs)),
     switchMap(songs => {
       this.correctSong = songs[this.randomSongPosId];
       return of(songs[this.randomSongPosId].lyrics || []);
@@ -103,7 +102,7 @@ export class GuessTheSongComponent {
 
   public onSubmit(selectedOptionId: number) {
     this.attempts++;
-    console.log(selectedOptionId, this.correctSong.id)
+    //console.log(selectedOptionId, this.correctSong.id)
     if (Number(selectedOptionId) === this.correctSong.id) {
       // console.log('isCorrect -> ', this.randomSongPosId);
 
