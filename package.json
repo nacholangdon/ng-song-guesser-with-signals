@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "deploy": "ng deploy --base-href=https://bradelev.github.io/ng-song-guesser/"
+    "deploy": "ng deploy --base-href https://bradelev.github.io/ng-song-guesser/",
+    "build:prod": "ng build --configuration production --base-href https://bradelev.github.io/ng-song-guesser/"
   },
   "private": true,
   "dependencies": {
