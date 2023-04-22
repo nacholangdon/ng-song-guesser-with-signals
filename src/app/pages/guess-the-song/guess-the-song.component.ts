@@ -125,7 +125,6 @@ export class GuessTheSongComponent {
       });
     } else {
       this._toggleClass('form.bg-white.shadow-md.rounded', 'shake-error', Constants.COUNTDOWN_INTERVAL);
-      // console.log('incorrect => ', Number(selectedOptionId), this.randomSongPosId);
       if (this.attempts === 2) {
         this.setFeedback('Last Chance!');
       }
@@ -172,8 +171,8 @@ export class GuessTheSongComponent {
         filter(authState => !!authState),
         tap(authState => {
           const scoreObject = {
+            name: authState.name,
             email: authState.email,
-            // playedGames: this.playedGames,
             score: this.totalScore
           };
           this._userService.updateUserScore(scoreObject);

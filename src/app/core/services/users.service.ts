@@ -15,28 +15,38 @@ export class UsersService {
   getUsers(): Observable<User[]> {
     const headers = new HttpHeaders().append('appKey', 'YOUR_APP_KEY');
     return this._http.get<User[]>(`${Constants.API_URL}/player/score`, { headers });
-    // return of(USER_MOCK);
   }
 
-  getUsersByTeamCode(teamCode: string): Observable<User[]> {
+  createUser(userData: {
+    email: string,
+    name: string
+  }): any {
     const headers = new HttpHeaders().append('appKey', 'YOUR_APP_KEY');
-    return this._http.get<User[]>(`${Constants.API_URL}/player/score`, { headers });
-    // return of(USER_MOCK).pipe(
-    //   map(users => users.filter(user => user.teamCode === teamCode))
-    // );
+    const { name, email } = userData;
+    return this._http.post<any>(
+      `${Constants.API_URL}/player`,
+      {
+        name,
+        email,
+        password: 'password',
+        score: 0,
+      },
+      { headers }
+    )
   }
 
   updateUserScore(scoreObj: {
     email: string,
+    name: string,
     playedGames?: number,
     score: number
   }): Observable<User> {
-    console.log('scoreObj', scoreObj) // TODO: send an http request
     const headers = new HttpHeaders().append('appKey', 'YOUR_APP_KEY');
-    const { email, score } = scoreObj;
+    const { email, name, score } = scoreObj;
     return this._http.put<User>(
       `${Constants.API_URL}/player/score`,
       {
+        name,
         email,
         score,
       },
