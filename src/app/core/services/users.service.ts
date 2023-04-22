@@ -43,7 +43,8 @@ export class UsersService {
   }): Observable<User> {
     const headers = new HttpHeaders().append('appKey', 'YOUR_APP_KEY');
     const { email, name, score } = scoreObj;
-    return this._http.put<User>(
+    console.log(scoreObj);
+    const response =  this._http.put<any>(
       `${Constants.API_URL}/player/score`,
       {
         name,
@@ -52,5 +53,15 @@ export class UsersService {
       },
       { headers }
     );
-  }
+    response.subscribe(
+      user => {
+        console.log('Actualizacion Exitosa:', user);
+      },
+      error => {
+        console.error('Error Al Actualizar:', error);
+      }
+    //return response;
+  )
+  return response;}
+  
 }
