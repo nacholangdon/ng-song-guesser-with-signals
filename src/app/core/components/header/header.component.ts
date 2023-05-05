@@ -17,19 +17,15 @@ import { ButtonComponent } from 'src/app/shared/components/button/button.compone
 export class HeaderComponent {
   private readonly _authService = inject(AuthService);
 
-  public vm = toSignal(
-    combineLatest([
-      this._authService.authState$,
-      this._authService.isLoggedIn$,
-      this._authService.selectedTeam$,
-    ]).pipe(
-      map(([authState, isLoggedIn, selectedTeam]) => ({
-        authState,
-        isLoggedIn,
-        selectedTeam,
-      }))
-    )
-  );
+  get authState() {
+    return this._authService.authState();
+  }
+  get isLoggedIn() {
+    return this._authService.isLoggedIn();
+  }
+  get selectedTeam() {
+    return this._authService.selectedTeam();
+  }
 
   public signOut(): void {
     this._authService.signOut();

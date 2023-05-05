@@ -1,7 +1,7 @@
 import { Router } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
 import { CommonModule } from '@angular/common';
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, signal, ViewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
 import {
@@ -56,24 +56,21 @@ export class GuessTheSongComponent {
 
   @ViewChild(FeedbackWordComponent) randomWordComponent!: FeedbackWordComponent;
 
-  public attempts = 0;
-  public playedGames = 1;
-  public totalScore = 0;
-  public isGameOver = false;
+  public attempts = signal(0);
+  public playedGames = signal(1);
+  public totalScore = signal(0);
+  public isGameOver = signal(false);
+  public showFeedback = signal(false);
+  public showForm = signal(true);
 
   public teamCode = '';
   public randomSongPosId = Math.floor(Math.random() * Constants.SONGS_OPTIONS);
   public correctSong!: Song;
-  public showFeedback = false;
-  public showForm = true;
 
-  private _songCorrect$ = new Subject<void>();
   private _resetTimer$: BehaviorSubject<boolean> = new BehaviorSubject(true);
   private _stopCondition$: BehaviorSubject<boolean> = new BehaviorSubject(
     false
   );
-
-  public authState$ = this._authService.authState$;
 
   private _songs$: Observable<Song[]> = this._songsService.getSongs().pipe(
     map((songs) => this._getSongOptions(songs, 0, Constants.SONGS_OPTIONS)),
@@ -108,71 +105,61 @@ export class GuessTheSongComponent {
     )
   );
 
-  public vm = toSignal(
-    combineLatest([
-      this._authService.authState$,
-      this._authService.isLoggedIn$,
-      this._authService.selectedTeam$,
-      this._songs$,
-      this._timer$,
-      this._currentPhrase$,
-    ]).pipe(
-      map(
-        ([
-          authState,
-          isLoggedIn,
-          selectedTeam,
-          songs,
-          timer,
-          currentPhrase,
-        ]) => ({
-          authState,
-          isLoggedIn,
-          selectedTeam,
-          songs,
-          timer,
-          currentPhrase,
-        })
-      )
-    )
-  );
+  public songs = toSignal(this._songs$);
+  public lyrics = toSignal(this._lyrics$);
+  public timer = toSignal(this._timer$, { initialValue: 30 });
+  public currentPhrase = toSignal(this._currentPhrase$);
 
   public songsForm = this._fb.group({
     songChoice: [null],
   });
 
+  get authState() {
+    return this._authService.authState();
+  }
+
+  get isLoggedIn() {
+    return this._authService.isLoggedIn();
+  }
+
+  get selectedTeam() {
+    return this._authService.selectedTeam();
+  }
+
   public ngOnInit(): void {
-    this.authState$.subscribe((res) => {
-      if (!res) {
-        this._router.navigate(['/login']);
-      }
-    });
+    if (!this.authState) {
+      debugger;
+      this._router.navigate(['/login']);
+    }
   }
 
   public onSubmit(selectedOptionId: number) {
-    this.attempts++;
+    this.attempts.update((attempts) => attempts++);
     //console.log(selectedOptionId, this.correctSong.id)
     if (Number(selectedOptionId) === this.correctSong.id) {
       // console.log('isCorrect -> ', this.randomSongPosId);
 
       // Update playedGames and totalScore
-      this.playedGames++;
-      this.totalScore += this.attempts === 1 ? 5 : this.attempts === 2 ? 3 : 1;
+      this.playedGames.update((playedGames) => playedGames++);
+      this.totalScore.update(
+        (currentValue) =>
+          (currentValue +=
+            this.attempts() === 1 ? 5 : this.attempts() === 2 ? 3 : 1)
+      );
       // feedback message
       // console.log('FEEDBACK MESSAGE: totalScore => ', this.totalScore)
       this.setFeedback('Correct!');
       // Reset attempts and select another song
-      this.attempts = 0;
-      this.showForm = false;
+      this.attempts.set(0);
+      this.showForm.set(false);
       timer(1000).subscribe((_) => {
         this.randomSongPosId = Math.floor(
           Math.random() * Constants.SONGS_OPTIONS
         );
         this._stopCondition$.next(false);
-        this._songCorrect$.next();
         this._resetCountdown();
         this.songsForm.reset();
-        this.showForm = true;
+        this.showForm.set(true);
       });
     } else {
       this._toggleClass(
@@ -180,24 +167,24 @@ export class GuessTheSongComponent {
         'shake-error',
         Constants.COUNTDOWN_INTERVAL
       );
-      if (this.attempts === 2) {
+      if (this.attempts() === 2) {
         this.setFeedback('Last Chance!');
       }
     }
 
-    if (this.attempts >= 3) {
+    if (this.attempts() >= 3) {
       this.setFeedback('Game Over!');
       this._gameOver();
     }
   }
 
   private setFeedback(word: string) {
-    this.showFeedback = true;
+    this.showFeedback.set(true);
     timer(0).subscribe((_) => {
       this.randomWordComponent.startAnimation(word);
     });
     timer(1000).subscribe((_) => {
-      this.showFeedback = false;
+      this.showFeedback.set(false);
     });
   }
 
@@ -224,28 +211,21 @@ export class GuessTheSongComponent {
   }
 
   private _gameOver() {
-    this.isGameOver = true;
+    debugger;
+    this.isGameOver.set(true);
     this.songsForm.disable();
     this._stopCondition$.next(true);
 
     // Send score object to UserService
-    this._authService.authState$
-      .pipe(
-        take(1),
-        filter((authState) => !!authState),
-        tap((authState) => {
-          const scoreObject = {
-            name: authState.name,
-            email: authState.email,
-            score: this.totalScore,
-          };
-          this._userService.updateUserScore(scoreObject);
-        }),
-        delay(3000)
-      )
-      .subscribe(() => {
-        this._router.navigate(['/ranking']);
-      });
+    if (!!this.authState) {
+      const scoreObject = {
+        name: this.authState.name,
+        email: this.authState.email,
+        score: this.totalScore(),
+      };
+      this._userService.updateUserScore(scoreObject);
+      this._router.navigate(['/ranking']);
+    }
   }
 
   private _getSongOptions(

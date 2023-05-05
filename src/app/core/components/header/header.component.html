@@ -6,9 +6,9 @@
       </a>
     </div>
 
-    <ng-container *ngIf="vm() as vm">
+    <ng-container *ngIf="authState">
       <div class="w-full lg:flex lg:items-center lg:w-auto hidden mt-2 lg:mt-0 bg-white lg:bg-transparent text-white p-4 lg:p-0 z-20" id="nav-content">
-        <div *ngIf="vm.authState as socialUser" class="flex flex-row items-center">
+        <div *ngIf="authState as socialUser" class="flex flex-row items-center">
           <img class="rounded-full w-1/6 mr-2 avatar" src="{{ socialUser?.photoUrl }}" referrerpolicy="no-referrer">
           <h4 class="mr-2">Welcome {{ socialUser?.name }}</h4>
           <app-button [value]="'Sign out'" [style]="'full'" (onClick)="signOut()"></app-button>

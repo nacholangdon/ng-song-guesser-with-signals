@@ -1,33 +1,49 @@
-import { Injectable, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
 
-import { BehaviorSubject, tap } from 'rxjs';
+import { tap } from 'rxjs';
 import { SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
+
 import { Team } from '../models/team';
+import { Router } from '@angular/router';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-
+  private readonly _router = inject(Router);
   private readonly _socialAuthService = inject(SocialAuthService);
 
-  private _isLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject(false);
-  public isLoggedIn$ = this._isLoggedIn.asObservable();
+  private _isLoggedIn = signal<boolean>(false);
+  public isLoggedIn = computed(this._isLoggedIn);
 
-  private _selectedTeam: BehaviorSubject<Team> = new BehaviorSubject({} as Team);
-  public selectedTeam$ = this._selectedTeam.asObservable();
+  private _selectedTeam = signal<Team>({} as Team);
+  public selectedTeam = computed(this._selectedTeam);
 
-  public authState$ = this._socialAuthService.authState.pipe(
-    tap((socialUser: SocialUser) => {
-      this._isLoggedIn.next(!!socialUser);
-    })
+  private _authState = toSignal<SocialUser>(
+    this._socialAuthService.authState.pipe(
+      tap((socialUser: SocialUser) => {
+        debugger;
+        this._isLoggedIn.set(!!socialUser);
+      })
+    )
   );
+  public authState = computed(this._authState);
+
+  constructor() {
+    effect(() => {
+      debugger;
+      if (!this.authState()) {
+        this._router.navigate(['/login']);
+      }
+    });
+  }
 
   signOut(): void {
     this._socialAuthService.signOut();
   }
 
   setTeam(team: Team) {
-    this._selectedTeam.next(team);
+    this._selectedTeam.set(team);
   }
 }

@@ -23,23 +23,26 @@ export class RankingComponent implements OnInit {
   private readonly _userService = inject(UsersService);
   private readonly _authService = inject(AuthService);
 
-  authState$ = this._authService.authState$;
   users = toSignal(
     this._userService
       .getUsers()
       .pipe(map((users) => users.sort((a, b) => (a.score > b.score ? -1 : 1))))
   );
 
+  get authState() {
+    return this._authService.authState();
+  }
+
   public ngOnInit(): void {
-    this.authState$.subscribe((res) => {
-      if (!res) {
-        this._router.navigate(['/login']);
-      }
-    });
+    if (!this.authState) {
+      debugger;
+      this._router.navigate(['/login']);
+    }
   }
 
   public goToSelectSong($event: boolean): void {
     if ($event) {
+      debugger;
       this._router.navigate(['/select-song']);
     }
   }

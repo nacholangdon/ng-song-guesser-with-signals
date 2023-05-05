@@ -1,26 +1,26 @@
-<div class="flex flex-col items-center justify-center mb-6" *ngIf="vm() as vm; else loadingData">
+<div class="flex flex-col items-center justify-center mb-6" *ngIf="selectedTeam; else loadingData">
   <div class="w-full max-w-xl mx-auto">
     <div class="feedback-container">
-      <app-feedback-word *ngIf="showFeedback"></app-feedback-word>
+      <app-feedback-word *ngIf="showFeedback()"></app-feedback-word>
     </div>
-    <p *ngIf="vm.selectedTeam as team" class="my-5 text-center">
+    <p *ngIf="selectedTeam as team" class="my-5 text-center">
       Your team is <strong>{{ team.name }}</strong>
     </p>
 
     <div class="text-center mb-4">
-      <p>Attempts: {{ attempts }} / 3</p>
-      <p>Played Games: {{ playedGames }}</p>
-      <p>Total Score: {{ totalScore }}</p>
+      <p>Attempts: {{ attempts() }} / 3</p>
+      <p>Played Games: {{ playedGames() }}</p>
+      <p>Total Score: {{ totalScore() }}</p>
     </div>
 
     <form
-      *ngIf="showForm"
+      *ngIf="showForm()"
       [formGroup]="songsForm"
-      [ngClass]="{'opacity-50': isGameOver, 'cursor-not-allowed': isGameOver}"
+      [ngClass]="{'opacity-50': isGameOver(), 'cursor-not-allowed': isGameOver()}"
       class="bg-white shadow-md rounded px-8 pt-6 pb-8 text-black">
       <div class="mb-6">
-        <div class="text-center" *ngIf="vm.currentPhrase as currentPhrase; else loading">
-          <span class="font-bold">{{ currentPhrase }}</span>
+        <div class="text-center" *ngIf="currentPhrase(); else loading">
+          <span class="font-bold">{{ currentPhrase() }}</span>
         </div>
         <ng-template #loading>
           <span>Loading...</span>
@@ -28,7 +28,7 @@
       </div>
       <div class="flex flex-col">
 
-        <div class="radio mb-2" *ngFor="let song of vm.songs">
+        <div class="radio mb-2" *ngFor="let song of songs()">
           <input
             hidden="hidden"
             type="radio"
@@ -38,7 +38,7 @@
             (click)="onSubmit(song.id)"
           />
           <label
-            [class.pointer-events-none]="isGameOver"
+            [class.pointer-events-none]="isGameOver()"
             [for]="'song-' + song.id"
             class="px-2 py-1 rounded-lg flex justify-center items-center font-bold w-full h-10 lg:h-14 hover:cursor-pointer"
           >
@@ -49,17 +49,17 @@
     </form>
 
     <div class="w-full h-4 mt-4">
-      <ng-container *ngIf="vm.timer as timer">
-        <div *ngIf="timer > 0 && !isGameOver; else timesUp" id="countdown">
-          <div id="countdown-number">{{ timer }}</div>
+      <ng-container *ngIf="timer()">
+        <div *ngIf="timer() > 0 && !isGameOver(); else timesUp" id="countdown">
+          <div id="countdown-number">{{ timer() }}</div>
           <svg class="active">
             <circle r="18" cx="20" cy="20"></circle>
           </svg>
         </div>
         <ng-template #timesUp>
           <div class="text-center">
-            <span *ngIf="!isGameOver" class="font-bold">Time's up!</span>
-            <span *ngIf="isGameOver" class="font-bold">Game Over</span>
+            <span *ngIf="!isGameOver()" class="font-bold">Time's up!</span>
+            <span *ngIf="isGameOver()" class="font-bold">Game Over</span>
           </div>
         </ng-template>
       </ng-container>

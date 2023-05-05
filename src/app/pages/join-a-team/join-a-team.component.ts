@@ -31,11 +31,8 @@ export class JoinATeamComponent implements OnInit {
   private readonly _authService = inject(AuthService);
   private readonly _teamsService = inject(TeamsService);
 
-  authState$ = this._authService.authState$;
-
   searchTeam = new FormControl('');
 
-  public isLoggedIn = toSignal(this._authService.isLoggedIn$);
   public teams = toSignal(
     this.searchTeam.valueChanges.pipe(
       debounceTime(500),
@@ -44,15 +41,22 @@ export class JoinATeamComponent implements OnInit {
     )
   );
 
+  get authState() {
+    return this._authService.authState();
+  }
+  get isLoggedIn() {
+    return this._authService.isLoggedIn();
+  }
+
   ngOnInit(): void {
-    this.authState$.subscribe((res) => {
-      if (!res) {
-        this._router.navigate(['/login']);
-      }
-    });
+    if (!this.authState) {
+      debugger;
+      this._router.navigate(['/login']);
+    }
   }
 
   public selectTeam(team: Team): void {
+    debugger;
     this._authService.setTeam(team);
     this._router.navigate(['/guess-the-song']);
   }

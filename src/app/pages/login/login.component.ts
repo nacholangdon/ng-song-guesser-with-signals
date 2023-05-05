@@ -1,6 +1,6 @@
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 
 import { GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 
@@ -14,37 +14,30 @@ import { filter, switchMap, tap } from 'rxjs';
   standalone: true,
   imports: [CommonModule, LabelComponent, GoogleSigninButtonModule],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent {
-
   private readonly _router = inject(Router);
   private readonly _authService = inject(AuthService);
   private readonly _userService = inject(UsersService);
 
-  private readonly _authState$ = this._authService.authState$;
-
-  ngOnInit(): void {
-    this._authState$
-      .pipe(
-        tap(res => {
-          if (!res) {
-            this._router.navigate(['/login']);
-          }
-        }),
-        filter(res => !!res),
-        switchMap(res => {
-          const { name, email } = res;
-          const userData = {
-            name,
-            email
-          };
-          return this._userService.createUser(userData);
-        })
-      )
-      .subscribe((res: any) => {
-        this._router.navigate(['/guess-the-song']);
-      });
+  get authState() {
+    return this._authService.authState();
   }
 
+  constructor() {
+    effect(() => {
+      if (!!this.authState) {
+        const { name, email } = this.authState;
+        const userData = {
+          name,
+          email,
+        };
+        this._userService.createUser(userData);
+        this._router.navigate(['/guess-the-song']);
+      } else {
+        this._router.navigate(['/login']);
+      }
+    });
+  }
 }
