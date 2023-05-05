@@ -6,7 +6,7 @@
       </a>
     </div>
 
-    <ng-container *ngIf="vm$ | async as vm">
+    <ng-container *ngIf="vm() as vm">
       <div class="w-full lg:flex lg:items-center lg:w-auto hidden mt-2 lg:mt-0 bg-white lg:bg-transparent text-white p-4 lg:p-0 z-20" id="nav-content">
         <div *ngIf="vm.authState as socialUser" class="flex flex-row items-center">
           <img class="rounded-full w-1/6 mr-2 avatar" src="{{ socialUser?.photoUrl }}" referrerpolicy="no-referrer">

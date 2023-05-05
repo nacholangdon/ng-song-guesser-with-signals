@@ -1,4 +1,4 @@
-<ng-container *ngIf="isLoggedIn$ | async">
+<ng-container *ngIf="isLoggedIn()">
   <div class="w-full max-w-md mx-auto mb-6">
     <h1 class="text-3xl font-bold text-white md:text-4xl text-center mb-5">Join a team</h1>
 
@@ -18,7 +18,7 @@
         </button>
 
         <div class="absolute mt-0 overflow-hidden rounded-md bg-white py-1 shadow-xl shadow-black/5 ring-1 ring-slate-700/10 w-full"
-          *ngIf="teams$ | async as teams">
+          *ngIf="teams() as teams">
           <ng-container *ngIf="teams.length; else noItems">
             <div class="px-3 py-2 hover:bg-indigo-600 text-black" *ngFor="let team of teams" (click)="selectTeam(team)">{{ team.name }}</div>
           </ng-container>

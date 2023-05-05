@@ -1,4 +1,4 @@
-<div class="flex flex-col items-center justify-center mb-6" *ngIf="vm$ | async as vm; else loadingData">
+<div class="flex flex-col items-center justify-center mb-6" *ngIf="vm() as vm; else loadingData">
   <div class="w-full max-w-xl mx-auto">
     <div class="feedback-container">
       <app-feedback-word *ngIf="showFeedback"></app-feedback-word>
@@ -35,7 +35,6 @@
             formControlName="songChoice"
             [id]="'song-' + song.id"
             [value]="song.id"
-            [disabled]="isGameOver"
             (click)="onSubmit(song.id)"
           />
           <label
