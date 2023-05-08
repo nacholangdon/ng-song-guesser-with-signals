@@ -1,26 +1,21 @@
 import { Router } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal, ViewChild } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { Component, inject, signal, ViewChild } from '@angular/core';
 
 import {
-  BehaviorSubject,
-  combineLatest,
-  delay,
-  filter,
-  interval,
-  map,
-  Observable,
   of,
-  shareReplay,
-  Subject,
-  switchMap,
-  take,
-  takeUntil,
-  takeWhile,
+  map,
   tap,
   timer,
+  interval,
+  takeWhile,
+  switchMap,
+  Observable,
+  shareReplay,
+  BehaviorSubject,
 } from 'rxjs';
 
 import { Song } from 'src/app/core/models/song';
@@ -32,7 +27,6 @@ import { UsersService } from 'src/app/core/services/users.service';
 
 import { ButtonComponent } from 'src/app/shared/components/button/button.component';
 import { FeedbackWordComponent } from 'src/app/shared/components/feedback-word/feedback-word.component';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-guess-the-song',
@@ -124,13 +118,6 @@ export class GuessTheSongComponent {
 
   get selectedTeam() {
     return this._authService.selectedTeam();
-  }
-
-  public ngOnInit(): void {
-    if (!this.authState) {
-      debugger;
-      this._router.navigate(['/login']);
-    }
   }
 
   public onSubmit(selectedOptionId: number) {

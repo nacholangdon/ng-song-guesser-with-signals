@@ -5,9 +5,8 @@ import { Component, effect, inject } from '@angular/core';
 import { GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 
 import { AuthService } from 'src/app/core/services/auth.service';
-import { LabelComponent } from '../../shared/components/label/label.component';
 import { UsersService } from 'src/app/core/services/users.service';
-import { filter, switchMap, tap } from 'rxjs';
+import { LabelComponent } from '../../shared/components/label/label.component';
 
 @Component({
   selector: 'app-login',

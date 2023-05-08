@@ -23,21 +23,14 @@ export class AuthService {
   private _authState = toSignal<SocialUser>(
     this._socialAuthService.authState.pipe(
       tap((socialUser: SocialUser) => {
-        debugger;
         this._isLoggedIn.set(!!socialUser);
+        if (!socialUser) {
+          this._router.navigate(['/login']);
+        }
       })
     )
   );
   public authState = computed(this._authState);
-
-  constructor() {
-    effect(() => {
-      debugger;
-      if (!this.authState()) {
-        this._router.navigate(['/login']);
-      }
-    });
-  }
 
   signOut(): void {
     this._socialAuthService.signOut();
